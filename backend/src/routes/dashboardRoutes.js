@@ -6,6 +6,7 @@ import express from "express";
 import {
   getResumenInicio,
   getAreaSuperior,
+  getDetallesPendientes,
 } from "../controllers/dashboardController.js";
 import { authenticateToken } from "../middleware/authMiddleware.js";
 
@@ -26,5 +27,13 @@ router.get("/resumen-inicio", getResumenInicio);
  */
 // Temporalmente sin autenticación para pruebas
 router.get("/area-superior", getAreaSuperior);
+
+/**
+ * GET /api/dashboard/pendientes-detalle
+ * Obtiene el detalle de pendientes por tipo para un área específica
+ * Query params: idarea, fechaInicio, fechaFin
+ */
+// Temporalmente sin autenticación para pruebas
+router.get("/pendientes-detalle", getDetallesPendientes);
 
 export default router;

@@ -227,6 +227,304 @@ class AsuntoDAO {
       return 0;
     }
   }
+
+  // ===== NUEVOS MÉTODOS ESPECÍFICOS PARA MODAL PENDIENTES =====
+
+  /**
+   * Obtiene cantidad de SIA (Solicitudes de Información) pendientes - Tipo K
+   */
+  async obtenerSIAPendientes(idarea, fechaInicio, fechaFin) {
+    try {
+      const query = `
+        SELECT 
+          COUNT(CASE 
+            WHEN asunto.estatus = 'P' 
+            AND SUBSTRING(asunto.fechaatender,1,8) <= TO_CHAR(CURRENT_DATE, 'YYYYMMDD') 
+            THEN 1 
+          END) as vencidos,
+          COUNT(CASE 
+            WHEN asunto.estatus = 'P' 
+            AND SUBSTRING(asunto.fechaatender,1,8) > TO_CHAR(CURRENT_DATE, 'YYYYMMDD') 
+            AND SUBSTRING(asunto.fechaatender,1,8) <= TO_CHAR(CURRENT_DATE + INTERVAL '7 days', 'YYYYMMDD') 
+            THEN 1 
+          END) as porvencer,
+          COUNT(CASE 
+            WHEN asunto.estatus = 'P' 
+            AND (asunto.fechaatender IS NULL 
+                 OR SUBSTRING(asunto.fechaatender,1,8) > TO_CHAR(CURRENT_DATE + INTERVAL '7 days', 'YYYYMMDD')) 
+            THEN 1 
+          END) as activos
+        FROM controlasuntospendientesnew.asunto asunto
+        INNER JOIN controlasuntospendientesnew.responsable resp ON asunto.idasunto = resp.idasunto
+        INNER JOIN controlasuntospendientesnew.area area ON resp.idarea = area.idarea
+        WHERE asunto.tipoasunto = 'K' 
+          AND area.idarea = $1 
+          AND resp.estatus = 'P'
+      `;
+
+      const result = await administradorDataSource.executeQuery(query, [
+        idarea,
+      ]);
+      const datos = result.rows[0] || { vencidos: 0, porvencer: 0, activos: 0 };
+
+      return {
+        vencidos_d: parseInt(datos.vencidos) || 0,
+        porvencer_d: parseInt(datos.porvencer) || 0,
+        pendactivos_d: parseInt(datos.activos) || 0,
+      };
+    } catch (error) {
+      console.error("Error en obtenerSIAPendientes:", error);
+      return { vencidos_d: 0, porvencer_d: 0, pendactivos_d: 0 };
+    }
+  }
+
+  /**
+   * Obtiene cantidad de COMISIONES pendientes - Tipo M
+   */
+  async obtenerComisionesPendientes(idarea, fechaInicio, fechaFin) {
+    try {
+      const query = `
+        SELECT 
+          COUNT(CASE 
+            WHEN asunto.estatus = 'P' 
+            AND SUBSTRING(asunto.fechaatender,1,8) <= TO_CHAR(CURRENT_DATE, 'YYYYMMDD') 
+            THEN 1 
+          END) as vencidos,
+          COUNT(CASE 
+            WHEN asunto.estatus = 'P' 
+            AND SUBSTRING(asunto.fechaatender,1,8) > TO_CHAR(CURRENT_DATE, 'YYYYMMDD') 
+            AND SUBSTRING(asunto.fechaatender,1,8) <= TO_CHAR(CURRENT_DATE + INTERVAL '7 days', 'YYYYMMDD') 
+            THEN 1 
+          END) as porvencer,
+          COUNT(CASE 
+            WHEN asunto.estatus = 'P' 
+            AND (asunto.fechaatender IS NULL 
+                 OR SUBSTRING(asunto.fechaatender,1,8) > TO_CHAR(CURRENT_DATE + INTERVAL '7 days', 'YYYYMMDD')) 
+            THEN 1 
+          END) as activos
+        FROM controlasuntospendientesnew.asunto asunto
+        INNER JOIN controlasuntospendientesnew.responsable resp ON asunto.idasunto = resp.idasunto
+        INNER JOIN controlasuntospendientesnew.area area ON resp.idarea = area.idarea
+        WHERE asunto.tipoasunto = 'M' 
+          AND area.idarea = $1 
+          AND resp.estatus = 'P'
+      `;
+
+      const result = await administradorDataSource.executeQuery(query, [
+        idarea,
+      ]);
+      const datos = result.rows[0] || { vencidos: 0, porvencer: 0, activos: 0 };
+
+      return {
+        vencidos_d: parseInt(datos.vencidos) || 0,
+        porvencer_d: parseInt(datos.porvencer) || 0,
+        pendactivos_d: parseInt(datos.activos) || 0,
+      };
+    } catch (error) {
+      console.error("Error en obtenerComisionesPendientes:", error);
+      return { vencidos_d: 0, porvencer_d: 0, pendactivos_d: 0 };
+    }
+  }
+
+  /**
+   * Obtiene cantidad de CORREOS pendientes - Tipo C
+   */
+  async obtenerCorreosPendientes(idarea, fechaInicio, fechaFin) {
+    try {
+      const query = `
+        SELECT 
+          COUNT(CASE 
+            WHEN asunto.estatus = 'P' 
+            AND SUBSTRING(asunto.fechaatender,1,8) <= TO_CHAR(CURRENT_DATE, 'YYYYMMDD') 
+            THEN 1 
+          END) as vencidos,
+          COUNT(CASE 
+            WHEN asunto.estatus = 'P' 
+            AND SUBSTRING(asunto.fechaatender,1,8) > TO_CHAR(CURRENT_DATE, 'YYYYMMDD') 
+            AND SUBSTRING(asunto.fechaatender,1,8) <= TO_CHAR(CURRENT_DATE + INTERVAL '7 days', 'YYYYMMDD') 
+            THEN 1 
+          END) as porvencer,
+          COUNT(CASE 
+            WHEN asunto.estatus = 'P' 
+            AND (asunto.fechaatender IS NULL 
+                 OR SUBSTRING(asunto.fechaatender,1,8) > TO_CHAR(CURRENT_DATE + INTERVAL '7 days', 'YYYYMMDD')) 
+            THEN 1 
+          END) as activos
+        FROM controlasuntospendientesnew.asunto asunto
+        INNER JOIN controlasuntospendientesnew.responsable resp ON asunto.idasunto = resp.idasunto
+        INNER JOIN controlasuntospendientesnew.area area ON resp.idarea = area.idarea
+        WHERE asunto.tipoasunto = 'C' 
+          AND area.idarea = $1 
+          AND resp.estatus = 'P'
+      `;
+
+      const result = await administradorDataSource.executeQuery(query, [
+        idarea,
+      ]);
+      const datos = result.rows[0] || { vencidos: 0, porvencer: 0, activos: 0 };
+
+      return {
+        vencidos_d: parseInt(datos.vencidos) || 0,
+        porvencer_d: parseInt(datos.porvencer) || 0,
+        pendactivos_d: parseInt(datos.activos) || 0,
+      };
+    } catch (error) {
+      console.error("Error en obtenerCorreosPendientes:", error);
+      return { vencidos_d: 0, porvencer_d: 0, pendactivos_d: 0 };
+    }
+  }
+
+  /**
+   * Obtiene cantidad de ACUERDOS pendientes - Tipo A (tabla accion, no asunto)
+   */
+  async obtenerAcuerdosPendientes(idarea, fechaInicio, fechaFin) {
+    try {
+      const query = `
+        SELECT 
+          COUNT(CASE 
+            WHEN accion.estatus = 'P' 
+            AND SUBSTRING(accion.acuerdo_fecha,1,8) <= TO_CHAR(CURRENT_DATE, 'YYYYMMDD') 
+            THEN 1 
+          END) as vencidos,
+          COUNT(CASE 
+            WHEN accion.estatus = 'P' 
+            AND SUBSTRING(accion.acuerdo_fecha,1,8) > TO_CHAR(CURRENT_DATE, 'YYYYMMDD') 
+            AND SUBSTRING(accion.acuerdo_fecha,1,8) <= TO_CHAR(CURRENT_DATE + INTERVAL '7 days', 'YYYYMMDD') 
+            THEN 1 
+          END) as porvencer,
+          COUNT(CASE 
+            WHEN accion.estatus = 'P' 
+            AND (accion.acuerdo_fecha IS NULL 
+                 OR SUBSTRING(accion.acuerdo_fecha,1,8) > TO_CHAR(CURRENT_DATE + INTERVAL '7 days', 'YYYYMMDD')) 
+            THEN 1 
+          END) as activos
+        FROM controlasuntospendientesnew.accion accion
+        INNER JOIN controlasuntospendientesnew.responsable resp ON accion.idaccion = resp.idaccion
+        INNER JOIN controlasuntospendientesnew.area area ON resp.idarea = area.idarea
+        WHERE (accion.activoestatus <> 'CNV' OR accion.activoestatus IS NULL)
+          AND area.idarea = $1 
+          AND resp.estatus = 'P'
+      `;
+
+      const result = await administradorDataSource.executeQuery(query, [
+        idarea,
+      ]);
+      const datos = result.rows[0] || { vencidos: 0, porvencer: 0, activos: 0 };
+
+      return {
+        vencidos_d: parseInt(datos.vencidos) || 0,
+        porvencer_d: parseInt(datos.porvencer) || 0,
+        pendactivos_d: parseInt(datos.activos) || 0,
+      };
+    } catch (error) {
+      console.error("Error en obtenerAcuerdosPendientes:", error);
+      return { vencidos_d: 0, porvencer_d: 0, pendactivos_d: 0 };
+    }
+  }
+
+  /**
+   * Obtiene cantidad de REUNIONES PENDIENTES DE REGISTRAR ACUERDOS - Tipo R
+   */
+  async obtenerReunionesPendientes(idarea, fechaInicio, fechaFin) {
+    try {
+      const query = `
+        SELECT 
+          COUNT(CASE 
+            WHEN asunto.estatus = 'P' 
+            AND SUBSTRING(asunto.fechaatender,1,8) <= TO_CHAR(CURRENT_DATE, 'YYYYMMDD') 
+            THEN 1 
+          END) as vencidos,
+          COUNT(CASE 
+            WHEN asunto.estatus = 'P' 
+            AND SUBSTRING(asunto.fechaatender,1,8) > TO_CHAR(CURRENT_DATE, 'YYYYMMDD') 
+            AND SUBSTRING(asunto.fechaatender,1,8) <= TO_CHAR(CURRENT_DATE + INTERVAL '7 days', 'YYYYMMDD') 
+            THEN 1 
+          END) as porvencer,
+          COUNT(CASE 
+            WHEN asunto.estatus = 'P' 
+            AND (asunto.fechaatender IS NULL 
+                 OR SUBSTRING(asunto.fechaatender,1,8) > TO_CHAR(CURRENT_DATE + INTERVAL '7 days', 'YYYYMMDD')) 
+            THEN 1 
+          END) as activos
+        FROM controlasuntospendientesnew.asunto asunto
+        INNER JOIN controlasuntospendientesnew.responsable resp ON asunto.idasunto = resp.idasunto
+        INNER JOIN controlasuntospendientesnew.area area ON resp.idarea = area.idarea
+        WHERE asunto.tipoasunto = 'R' 
+          AND area.idarea = $1 
+          AND resp.estatus = 'P'
+      `;
+
+      const result = await administradorDataSource.executeQuery(query, [
+        idarea,
+      ]);
+      const datos = result.rows[0] || { vencidos: 0, porvencer: 0, activos: 0 };
+
+      return {
+        vencidos_d: parseInt(datos.vencidos) || 0,
+        porvencer_d: parseInt(datos.porvencer) || 0,
+        pendactivos_d: parseInt(datos.activos) || 0,
+      };
+    } catch (error) {
+      console.error("Error en obtenerReunionesPendientes:", error);
+      return { vencidos_d: 0, porvencer_d: 0, pendactivos_d: 0 };
+    }
+  }
+
+  /**
+   * Método principal para obtener todos los detalles de pendientes por área
+   * Usa las consultas específicas correctas para cada tipo
+   */
+  async obtenerDetallesPendientesPorArea(idarea, fechaInicio, fechaFin) {
+    try {
+      console.log(
+        `🔍 === DETALLES PENDIENTES ÁREA ${idarea} (CONSULTAS ESPECÍFICAS) ===`
+      );
+
+      const [sia, comisiones, correos, acuerdos, reuniones] = await Promise.all(
+        [
+          this.obtenerSIAPendientes(idarea, fechaInicio, fechaFin),
+          this.obtenerComisionesPendientes(idarea, fechaInicio, fechaFin),
+          this.obtenerCorreosPendientes(idarea, fechaInicio, fechaFin),
+          this.obtenerAcuerdosPendientes(idarea, fechaInicio, fechaFin),
+          this.obtenerReunionesPendientes(idarea, fechaInicio, fechaFin),
+        ]
+      );
+
+      const resultado = [
+        {
+          tipoasunto: "SIA",
+          tipoAbreviado: "K",
+          ...sia,
+        },
+        {
+          tipoasunto: "COMISIONES",
+          tipoAbreviado: "M",
+          ...comisiones,
+        },
+        {
+          tipoasunto: "CORREOS",
+          tipoAbreviado: "C",
+          ...correos,
+        },
+        {
+          tipoasunto: "ACUERDOS",
+          tipoAbreviado: "A",
+          ...acuerdos,
+        },
+        {
+          tipoasunto: "REUNIONES PENDIENTES DE REGISTRAR ACUERDOS",
+          tipoAbreviado: "R",
+          ...reuniones,
+        },
+      ];
+
+      console.log("✅ Detalles específicos obtenidos:", resultado);
+      return resultado;
+    } catch (error) {
+      console.error("Error en obtenerDetallesPendientesPorArea:", error);
+      return [];
+    }
+  }
 }
 
 export default AsuntoDAO;

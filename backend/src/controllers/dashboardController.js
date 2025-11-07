@@ -313,17 +313,18 @@ function formatearDatosArea(area) {
  * Equivale a AdministradorReportes.obtenReportePorArea() + FachadaUsuarioArea.buscaArea()
  * Usa EXCLUSIVAMENTE consultas SQL directas a PostgreSQL (NO APIs externas)
  */
+/**
+ * Obtiene detalles de pendientes por área - CORREGIDO con consultas específicas
+ * Usa las consultas exactas proporcionadas para cada tipo de asunto
+ */
 async function obtenerDetallesPendientes(idarea) {
   try {
     console.log(
-      `🔍 === DETALLES PENDIENTES ÁREA ${idarea} (USANDO DAOs Node.js) ===`
+      `🔍 === DETALLES PENDIENTES ÁREA ${idarea} (CONSULTAS ESPECÍFICAS CORREGIDAS) ===`
     );
-    // NOTA: Los archivos Java han sido migrados a Node.js:
-    // - AdministradorReportes.java → /services/AdministradorReportes.js
-    // - AsuntoDAO.java → /dao/AsuntoDAO.js
-    // - AreaDAO.java → /dao/AreaDAO.js
-    // - AdministradorDataSource.java → /config/administradorDataSource.js
-    // - DatosGlobales.java → /config/datosGlobales.js
+
+    // Importar AsuntoDAO dinámicamente
+    const { default: AsuntoDAO } = await import("../dao/AsuntoDAO.js");
 
     // Fechas basadas en DatosGlobales.anioBase() y Utiles.getFechaHoy() del servlet original
     const hoy = new Date();
@@ -331,9 +332,9 @@ async function obtenerDetallesPendientes(idarea) {
     const fechaIni = `${anioActual}-01-01`; // DatosGlobales.anioBase()
     const fechaFin = formatearFecha(hoy); // Utiles.getFechaHoy()
 
-    console.log(`� Período de consulta: ${fechaIni} al ${fechaFin}`);
+    console.log(`📅 Período de consulta: ${fechaIni} al ${fechaFin}`);
 
-    // 1. OBTENER DATOS DEL ÁREA desde PostgreSQL (equivale a FachadaUsuarioArea.buscaArea())
+    // 1. OBTENER DATOS DEL ÁREA desde PostgreSQL
     const areaQuery = `
       SELECT idarea, nombre, siglas, nivel 
       FROM controlasuntospendientesnew.area 
@@ -352,37 +353,15 @@ async function obtenerDetallesPendientes(idarea) {
 
     console.log(`📊 Área encontrada: ${areaData.siglas} (${areaData.nombre})`);
 
-    // 2. OBTENER DETALLES POR TIPO DE ASUNTO (equivale a AdministradorReportes.obtenReportePorArea())
-    const tiposAsunto = [
-      { codigo: "K", nombre: "SIA" },
-      { codigo: "M", nombre: "COMISIONES" },
-      { codigo: "C", nombre: "CORREOS" },
-      { codigo: "A", nombre: "ACUERDOS" },
-    ];
-
-    const resumenTipos = [];
-
-    // Procesar cada tipo de asunto con consultas SQL directas
-    for (const tipo of tiposAsunto) {
-      const detallesTipo = await obtenerDetallesTipoAsunto(
-        idarea,
-        tipo.codigo,
-        tipo.nombre,
-        fechaIni,
-        fechaFin
-      );
-      resumenTipos.push(detallesTipo);
-    }
-
-    // 3. AGREGAR REUNIONES PENDIENTES DE REGISTRAR ACUERDOS (tipo especial)
-    const reunionesDetalles = await obtenerDetallesReuniones(
+    // 2. USAR ASUNTODAO CON CONSULTAS ESPECÍFICAS CORREGIDAS
+    const asuntoDAO = new AsuntoDAO();
+    const resumenTipos = await asuntoDAO.obtenerDetallesPendientesPorArea(
       idarea,
       fechaIni,
       fechaFin
     );
-    resumenTipos.push(reunionesDetalles);
 
-    // 4. CONSTRUIR RESPUESTA EN FORMATO DEL SERVLET ORIGINAL
+    // 3. CONSTRUIR RESPUESTA EN FORMATO DEL SERVLET ORIGINAL
     const reportePorArea = [
       {
         area: {
@@ -395,7 +374,7 @@ async function obtenerDetallesPendientes(idarea) {
       },
     ];
 
-    console.log(`✅ Detalles obtenidos para ${areaData.siglas}:`, {
+    console.log(`✅ Detalles específicos obtenidos para ${areaData.siglas}:`, {
       area: areaData.siglas,
       tiposAsunto: resumenTipos.length,
       totalItems: resumenTipos.reduce(
@@ -408,7 +387,7 @@ async function obtenerDetallesPendientes(idarea) {
     return reportePorArea;
   } catch (error) {
     console.error(
-      "❌ Error obteniendo detalles pendientes desde PostgreSQL:",
+      "❌ Error obteniendo detalles pendientes con consultas específicas:",
       error
     );
     throw error;
@@ -607,3 +586,36 @@ const datosGlobalesConfig = {
     return `${año}-01-01`;
   },
 };
+
+/**
+ * GET /api/dashboard/pendientes-detalle
+ * Obtiene el detalle de pendientes por tipo para un área específica
+ * @param {Object} req - Request object con query params: idarea, fechaInicio, fechaFin
+ * @param {Object} res - Response object
+ */
+export async function getDetallesPendientes(req, res) {
+  try {
+    const { idarea, fechaInicio, fechaFin } = req.query;
+
+    if (!idarea) {
+      return res.status(400).json({
+        success: false,
+        message: "El parámetro idarea es requerido",
+      });
+    }
+
+    const detalles = await obtenerDetallesPendientes(parseInt(idarea));
+
+    res.json({
+      success: true,
+      data: detalles,
+    });
+  } catch (error) {
+    console.error("Error en getDetallesPendientes:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error interno del servidor",
+      error: error.message,
+    });
+  }
+}

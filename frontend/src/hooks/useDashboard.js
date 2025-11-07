@@ -8,7 +8,7 @@ import axios from "axios";
 import { dashboardCache } from "../utils/dashboardCache";
 
 const API_BASE_URL =
-  import.meta.env.VITE_API_URL || "http://localhost:5003/api";
+  import.meta.env.VITE_API_URL || "http://localhost:5004/api";
 
 export const useDashboard = (user) => {
   const [loading, setLoading] = useState(false);
