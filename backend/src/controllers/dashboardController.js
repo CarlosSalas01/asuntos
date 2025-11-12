@@ -19,9 +19,6 @@
 import axios from "axios";
 import datosGlobales from "../config/datosGlobales.js";
 import administradorDataSource from "../config/administradorDataSource.js";
-// import AdministradorReportes from "../services/AdministradorReportes.js"; // Temporalmente comentado para debug
-// import AreaDAO from "../dao/AreaDAO.js"; // Temporalmente comentado para debug
-// import FachadaDAO from "../fachadas/FachadaDAO.js"; // Temporalmente comentado para debug
 
 /**
  * Obtiene totales desde la API externa de SOLR (como el sistema original)
