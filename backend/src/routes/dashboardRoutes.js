@@ -7,6 +7,8 @@ import {
   getResumenInicio,
   getAreaSuperior,
   getDetallesPendientes,
+  getTotalesPostgreSQL,
+  getTotalesAPIExterna,
 } from "../controllers/dashboardController.js";
 import { authenticateToken } from "../middleware/authMiddleware.js";
 
@@ -35,5 +37,19 @@ router.get("/area-superior", getAreaSuperior);
  */
 // Temporalmente sin autenticación para pruebas
 router.get("/pendientes-detalle", getDetallesPendientes);
+
+/**
+ * GET /api/dashboard/totales-postgresql
+ * Obtiene totales desde PostgreSQL para comparación
+ * Query params: fechaInicio, fechaFin
+ */
+router.get("/totales-postgresql", getTotalesPostgreSQL);
+
+/**
+ * GET /api/dashboard/totales
+ * Obtiene totales desde API externa SOLR (para EstadisticasCards.jsx)
+ * Query params: fechaInicio, fechaFin
+ */
+router.get("/totales", getTotalesAPIExterna);
 
 export default router;

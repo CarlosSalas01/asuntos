@@ -8,6 +8,7 @@ import dotenv from "dotenv";
 import authRoutes from "./routes/auth.js"; // Activado para login
 // import systemRoutes from "./routes/system.js"; // Temporalmente comentado para debug
 import dashboardRoutes from "./routes/dashboardRoutes.js"; // Activado para pruebas
+import consultaGeneralRoutes from "./routes/consultaGeneralRoutes.js"; // Rutas consulta general
 // import { errorHandler } from "./middleware/errorHandler.js"; // Temporalmente comentado para debug
 import administradorDataSource from "./config/administradorDataSource.js"; // Activado para auth con BD
 
@@ -15,7 +16,7 @@ import administradorDataSource from "./config/administradorDataSource.js"; // Ac
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 5006;
+const PORT = process.env.PORT || 9001;
 
 // Middlewares
 app.use(helmet()); // Seguridad
@@ -65,7 +66,8 @@ app.get("/api/resumen-inicio", (req, res) => {
 // app.use("/api/asuntos", asuntosRoutes); // Temporalmente comentado para debug
 app.use("/api/auth", authRoutes); // Activado para login
 // app.use("/api/system", systemRoutes); // Temporalmente comentado para debug
-app.use("/api", dashboardRoutes); // Activado para pruebas del dashboard
+app.use("/api/dashboard", dashboardRoutes); // Activado para pruebas del dashboard
+app.use("/api/busqueda-general", consultaGeneralRoutes); // POST /api/busqueda-general
 
 // Middleware de manejo de errores
 // app.use(errorHandler); // Temporalmente comentado para debug

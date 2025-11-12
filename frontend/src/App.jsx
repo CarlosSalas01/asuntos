@@ -16,6 +16,12 @@ import Correos from "./pages/Correos";
 import Comisiones from "./pages/Comisiones";
 import Convenios from "./pages/Convenios";
 import ConsultaGral from "./pages/ConsultaGral";
+import ConsultaAsuntosGeneral from "./pages/ConsultaAsuntosGeneral";
+import ConsultaSIA from "./pages/ConsultaSIA";
+import ConsultaCorreos from "./pages/ConsultaCorreos";
+import ConsultaComisiones from "./pages/ConsultaComisiones";
+import ConsultaReuniones from "./pages/ConsultaReuniones";
+import ConsultaAcuerdos from "./pages/ConsultaAcuerdos";
 import Reportes from "./pages/Reportes";
 import Acuerdos from "./pages/Acuerdos";
 import AsuntosSIA from "./pages/Captura/AsuntosSIA.jsx";
@@ -92,6 +98,29 @@ function AppContent() {
                 <Route path="/convenios" element={<Convenios />} />
                 <Route path="/acuerdos" element={<Acuerdos />} />
                 <Route path="/consulta-general" element={<ConsultaGral />} />
+
+                {/* Nueva consulta general con TablaResultados */}
+                <Route
+                  path="/consulta-asuntos-general"
+                  element={<ConsultaAsuntosGeneral />}
+                />
+
+                {/* Rutas específicas de navegación desde TablaResultados */}
+                <Route path="/consulta-sia" element={<ConsultaSIA />} />
+                <Route path="/consulta-correos" element={<ConsultaCorreos />} />
+                <Route
+                  path="/consulta-comisiones"
+                  element={<ConsultaComisiones />}
+                />
+                <Route
+                  path="/consulta-reuniones"
+                  element={<ConsultaReuniones />}
+                />
+                <Route
+                  path="/consulta-acuerdos"
+                  element={<ConsultaAcuerdos />}
+                />
+
                 <Route path="/reportes" element={<Reportes />} />
                 <Route path="/asuntos" element={<Asuntos />} />
                 <Route path="/asuntos-sia" element={<AsuntosSIA />} />

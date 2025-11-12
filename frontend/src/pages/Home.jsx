@@ -1,6 +1,6 @@
 import React, { useState, memo } from "react";
 import { useTheme } from "../context/ThemeContext";
-import { useDashboard } from "../hooks/useDashboard";
+import { useDashboardAPIExterna } from "../hooks/useDashboardAPIExterna";
 import GeneralStats from "../components/dashboard/EstadisticasCards";
 import AreaCard from "../components/dashboard/AreaCard";
 import PendientesModal from "../components/dashboard/PendientesModal";
@@ -18,7 +18,7 @@ const Home = memo(() => {
     dashboardData,
     consultarPendientes,
     formatearNumero,
-  } = useDashboard(user);
+  } = useDashboardAPIExterna(user);
 
   const handleConsultarPendientes = async (idarea) => {
     const data = await consultarPendientes(idarea);
