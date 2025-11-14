@@ -80,24 +80,22 @@ export const getTotalesAPIExterna = async (req, res) => {
   } catch (error) {
     console.error("❌ Error en getTotalesAPIExterna:", error.message);
 
-    // Fallback con datos conocidos de SOLR (datos reales del último test exitoso)
+    // Fallback con datos vacíos (mejor que datos hardcodeados)
     const fallback = {
       fuente: "API_Externa_SOLR_Fallback",
       error: `Error conectando con API externa: ${error.message}`,
-      periodo: { fechaInicio: "2025-01-01", fechaFin: "2025-11-11" },
+      periodo: { fechaInicio, fechaFin },
       totales: {
-        totalGral: 360,
-        totalAtendidos: 350,
-        totalPendientes: 10,
-        totalReuniones: 149,
+        totalGral: 0,
+        totalAtendidos: 0,
+        totalPendientes: 0,
+        totalReuniones: 0,
       },
       timestamp: new Date(),
     };
 
-    console.log("⚠️ Usando datos de respaldo de API Externa");
-    res.json(fallback); // Enviar como 200 para que el frontend funcione
-    console.log("⚠️ Usando datos de respaldo de API Externa");
-    res.json(fallback); // Enviar como 200 para que el frontend funcione
+    console.log("⚠️ Usando datos de respaldo vacíos");
+    res.status(503).json(fallback); // 503 Service Unavailable es más apropiado
   }
 };
 
@@ -176,7 +174,7 @@ export const getResumenInicio = async (req, res) => {
     const usuario = req.user; // Del middleware de autenticación
 
     console.log(
-      `� Dashboard: ${
+      `Dashboard: ${
         tipo === "0" ? "resumen general" : `detalles área ${req.query.idarea}`
       }`
     );
@@ -274,14 +272,6 @@ async function obtenerReunionesSinAcuerdos(fechaIni, fechaFin, usuario) {
     ]);
 
     const cantidad = parseInt(result.rows[0]?.cantidad) || 0;
-
-    /* OPCIÓN 2: Usar FachadaDAO (migrado de Java)
-    const fachada = new FachadaDAO();
-    const anio = fechaFin.substring(0, 4); // Extraer año de la fecha
-    const cantidad = await fachada.reunionesSinAcuerdo(anio);
-    await fachada.close();
-    */
-
     return cantidad;
   } catch (error) {
     return 0;
@@ -314,27 +304,23 @@ async function obtenerDatosResumen(otroAnio, idAdjunta, usuario) {
       obtenerReunionesSinAcuerdos(fechaIni, fechaFin, usuario), // SQL directa para reuniones SA
     ]);
 
-    // Calcular totales generales sumando las áreas (datos reales del SOLR)
-    const elementosAreas = resumenResponse.data.resumenInicio || [];
+    // El servicio SOLR devuelve directamente un array, no un objeto con propiedad resumenInicio
+    const elementosAreas = Array.isArray(resumenResponse.data)
+      ? resumenResponse.data
+      : resumenResponse.data.resumenInicio || [];
     let totalAtendidosCalculado = 0;
     let totalPendientesCalculado = 0;
 
     elementosAreas.forEach((area) => {
       totalAtendidosCalculado += parseInt(area.atendidos) || 0;
-      totalPendientesCalculado += parseInt(area.totalPend) || 0;
+      totalPendientesCalculado +=
+        parseInt(area.pendientes) || parseInt(area.totalPend) || 0;
     });
 
     const atendidosTotal = totalAtendidosCalculado;
     const pendientesTotal = totalPendientesCalculado;
     const totalGeneral = atendidosTotal + pendientesTotal;
     const reunionesSA = reunionesSADirecta;
-
-    console.log("📊 === TOTALES CALCULADOS DESDE SOLR ===");
-    console.log(`📈 Total Atendidos: ${atendidosTotal}`);
-    console.log(`📋 Total Pendientes: ${pendientesTotal}`);
-    console.log(`🎯 Total General: ${totalGeneral}`);
-    console.log(`👥 Reuniones SA: ${reunionesSA}`);
-    console.log("========================================");
 
     // Construir resultado con totales correctos del servlet Java original
     const resultado = [
@@ -347,22 +333,8 @@ async function obtenerDatosResumen(otroAnio, idAdjunta, usuario) {
       },
     ];
 
-    // Procesar datos por área (usar la variable ya declarada arriba)
+    // Procesar datos por área
     const idAdjuntaInt = parseInt(idAdjunta);
-
-    elementosAreas.forEach((area, index) => {
-      console.log(`📊 Área ${index + 1} - ${area.siglas}:`, {
-        idarea: area.idarea,
-        atendidos: area.atendidos,
-        totalPend: area.totalPend,
-        vencidos: area.vencidos,
-        por_vencer: area.por_vencer,
-        sin_vencer: area.sin_vencer,
-        // Log completo del objeto para debug
-        raw: area,
-      });
-    });
-    console.log("🔍 ===============================");
 
     if (idAdjunta !== "0" && idAdjunta !== "1") {
       // Filtrar por área específica
@@ -391,35 +363,12 @@ async function obtenerDatosResumen(otroAnio, idAdjunta, usuario) {
  */
 function formatearDatosArea(area) {
   // CORRECCIÓN: Usar exactamente los nombres de campos del API REST original
-  // Basado en el código Java original ResumenInicio.java
+  // El servicio SOLR devuelve: porVencer, sinVencer (camelCase)
   const atendidos = parseInt(area.atendidos) || 0;
-  const pendientes = parseInt(area.totalPend) || 0;
+  const pendientes = parseInt(area.totalPend) || parseInt(area.pendientes) || 0;
   const vencidos = parseInt(area.vencidos) || 0;
-  const porvencer = parseInt(area.por_vencer) || 0;
-  const sinvencer = parseInt(area.sin_vencer) || 0;
-
-  // Verificar que los datos sean consistentes
-  const sumaDetalles = vencidos + porvencer + sinvencer;
-
-  // Log detallado para debug
-  console.log(`📋 === ÁREA ${area.siglas} ===`);
-  console.log(`� Datos del API REST:`, {
-    atendidos: area.atendidos,
-    totalPend: area.totalPend,
-    vencidos: area.vencidos,
-    por_vencer: area.por_vencer,
-    sin_vencer: area.sin_vencer,
-  });
-  console.log(`🔢 Datos parseados:`, {
-    atendidos,
-    pendientes,
-    vencidos,
-    porvencer,
-    sinvencer,
-    sumaDetalles,
-    consistente: sumaDetalles === pendientes,
-  });
-  console.log(`📋 ========================`);
+  const porvencer = parseInt(area.porVencer) || parseInt(area.por_vencer) || 0;
+  const sinvencer = parseInt(area.sinVencer) || parseInt(area.sin_vencer) || 0;
 
   return {
     // Campos principales - EXACTOS del API REST (sin modificaciones)

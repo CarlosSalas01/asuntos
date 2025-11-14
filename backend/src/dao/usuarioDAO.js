@@ -31,134 +31,15 @@ class UsuarioDAO {
         console.log(
           `[UsuarioDAO] Usuario encontrado en BD: ${usuario.username}`
         );
-        console.log(`[UsuarioDAO] Datos del usuario:`, {
-          nombre: usuario.nombre,
-          apellido: usuario.apellido,
-          correo: usuario.correo1,
-          responsable: usuario.responsable,
-        });
         return this.mapRowToUsuario(usuario);
       }
 
       console.log(
         `[UsuarioDAO] Usuario no encontrado en BD: ${datosLogin.usuario}`
       );
-
-      // Solo usar usuarios de prueba para admin/usuario específicos
-      if (
-        datosLogin.usuario.toLowerCase() === "admin" ||
-        datosLogin.usuario.toLowerCase() === "usuario"
-      ) {
-        console.log(
-          `[UsuarioDAO] Usando usuario de prueba para: ${datosLogin.usuario}`
-        );
-
-        // Fallback a usuarios de prueba si hay error de BD
-        const usuariosPrueba = [
-          {
-            idusuario: 1,
-            username: "admin",
-            contrasenia: "admin123", // En texto plano para pruebas
-            nombre: "Administrador",
-            apellido: "Sistema",
-            vigente: "S",
-            activoestatus: "S",
-            correo1: "admin@asuntos.com",
-            correo2: null,
-            responsable: "S",
-            enviocorreoauto: "S",
-            superusuario: true,
-          },
-          {
-            idusuario: 2,
-            username: "usuario",
-            contrasenia: "user123", // En texto plano para pruebas
-            nombre: "Usuario",
-            apellido: "Prueba",
-            vigente: "S",
-            activoestatus: "S",
-            correo1: "usuario@asuntos.com",
-            correo2: null,
-            responsable: "N",
-            enviocorreoauto: "N",
-            superusuario: false,
-          },
-        ];
-
-        const usuario = usuariosPrueba.find(
-          (u) =>
-            u.username.toLowerCase() === datosLogin.usuario.toLowerCase() &&
-            u.vigente === "S"
-        );
-
-        if (usuario) {
-          console.log(
-            `[UsuarioDAO] Usuario encontrado en datos de prueba: ${usuario.username}`
-          );
-          return this.mapRowToUsuario(usuario);
-        }
-
-        console.log(
-          `[UsuarioDAO] Usuario no encontrado en datos de prueba: ${datosLogin.usuario}`
-        );
-      }
-
       return null;
     } catch (error) {
       console.error("[UsuarioDAO] Error en buscaUsuario:", error);
-
-      // En caso de error de BD, intentar con usuarios de prueba admin/usuario
-      if (
-        datosLogin.usuario.toLowerCase() === "admin" ||
-        datosLogin.usuario.toLowerCase() === "usuario"
-      ) {
-        console.log(
-          `[UsuarioDAO] Intentando usuario de prueba por error de BD: ${datosLogin.usuario}`
-        );
-
-        const usuariosPrueba = [
-          {
-            idusuario: 1,
-            username: "admin",
-            contrasenia: "admin123",
-            nombre: "Administrador",
-            apellido: "Sistema",
-            vigente: "S",
-            activoestatus: "S",
-            correo1: "admin@asuntos.com",
-            correo2: null,
-            responsable: "S",
-            enviocorreoauto: "S",
-            superusuario: true,
-          },
-          {
-            idusuario: 2,
-            username: "usuario",
-            contrasenia: "user123",
-            nombre: "Usuario",
-            apellido: "Prueba",
-            vigente: "S",
-            activoestatus: "S",
-            correo1: "usuario@asuntos.com",
-            correo2: null,
-            responsable: "N",
-            enviocorreoauto: "N",
-            superusuario: false,
-          },
-        ];
-
-        const usuario = usuariosPrueba.find(
-          (u) => u.username.toLowerCase() === datosLogin.usuario.toLowerCase()
-        );
-
-        if (usuario) {
-          console.log(
-            `[UsuarioDAO] Usuario de emergencia encontrado: ${usuario.username}`
-          );
-          return this.mapRowToUsuario(usuario);
-        }
-      }
-
       throw error;
     }
   }

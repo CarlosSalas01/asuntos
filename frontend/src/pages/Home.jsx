@@ -10,8 +10,15 @@ const Home = memo(() => {
   const [modalData, setModalData] = useState(null);
   const [showModal, setShowModal] = useState(false);
 
-  // Simulamos datos del usuario desde localStorage o contexto
-  const user = JSON.parse(localStorage.getItem("user") || "{}");
+  // Memoizar usuario para evitar re-renderizados innecesarios
+  const [user] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem("user") || "{}");
+    } catch {
+      return {};
+    }
+  });
+
   const {
     loading,
     error,

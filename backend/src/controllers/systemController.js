@@ -18,6 +18,12 @@ const healthCheck = async (req, res) => {
       message: "Sistema funcionando correctamente",
       timestamp: new Date().toISOString(),
       version: datosGlobales.VERSION,
+      versionInfo: {
+        current: datosGlobales.VERSION,
+        migration: datosGlobales.VERSION_MIGRACION,
+        original: datosGlobales.VERSION_ORIGINAL,
+        description: "Sistema migrado de Java/JSP a Node.js/React",
+      },
       environment: datosGlobales.ESTADO_PRODUCCION
         ? "production"
         : "development",

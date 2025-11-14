@@ -1,15 +1,21 @@
+//Express es para crear el servidor y manejar rutas
 import express from "express";
+//Cors es para permitir solicitudes desde otros dominios, por ejemplo, desde el frontend
 import cors from "cors";
+//Helmet ayuda a proteger la app configurando cabeceras HTTP (en este caso, lo usamos para seguridad básica)
 import helmet from "helmet";
+//Morgan es para logging de peticiones HTTP (aquí usamos el formato 'combined' que es para logs detallados)
 import morgan from "morgan";
+//Dotenv es para cargar variables de entorno desde un archivo .env
 import dotenv from "dotenv";
 
 import authRoutes from "./routes/auth.js";
 import dashboardRoutes from "./routes/dashboardRoutes.js";
 import consultaGeneralRoutes from "./routes/consultaGeneralRoutes.js";
 import administradorDataSource from "./config/administradorDataSource.js";
+import datosGlobales from "./config/datosGlobales.js";
 
-// Configuración de variables de entorno
+// Configuración de variables de entorno. Las variables de entorno vienen siendo cargadas desde un archivo .env en el root del proyecto
 dotenv.config();
 
 const app = express();
@@ -26,39 +32,13 @@ app.use(express.urlencoded({ extended: true })); // Parser URL
 app.get("/", (req, res) => {
   res.json({
     message: "API del Sistema de Asuntos",
-    version: "1.0.0",
+    version: datosGlobales.VERSION,
+    versionOriginal: datosGlobales.VERSION_ORIGINAL,
+    versionMigracion: datosGlobales.VERSION_MIGRACION,
     status: "active",
+    migration: "Java/JSP → Node.js/React",
   });
 });
-
-// Endpoint de prueba para dashboard - COMENTADO para usar rutas reales
-/*
-app.get("/api/resumen-inicio", (req, res) => {
-  console.log("🔍 Endpoint /api/resumen-inicio llamado con query:", req.query);
-
-  try {
-    // Respuesta de prueba para verificar conectividad
-    const respuestaPrueba = [
-      {
-        fechaHora: "Miércoles, 6 de noviembre de 2024 a las 10:30 horas",
-        atendidosTodos: 150,
-        pendientesTodos: 75,
-        totalGral: 225,
-        reunionesSA: 12,
-      },
-    ];
-
-    console.log("✅ Enviando respuesta de prueba");
-    res.json(respuestaPrueba);
-  } catch (error) {
-    console.error("❌ Error en endpoint de prueba:", error);
-    res.status(500).json({
-      error: "Error interno del servidor",
-      message: error.message,
-    });
-  }
-});
-*/
 
 app.use("/api/auth", authRoutes);
 app.use("/api/dashboard", dashboardRoutes);

@@ -44,86 +44,81 @@ export const useDashboardAPIExterna = (user) => {
   }, []);
 
   /**
-   * Carga totales desde API externa de SOLR
+   * Carga totales desde API externa - Para uso manual/botones
    */
-  const cargarTotales = useCallback(async () => {
-    setLoading(true);
-    setError(null);
+  const cargarTotales = useCallback(
+    async (fechaInicio = null, fechaFin = null, idAdjunta = "1") => {
+      if (loading) return; // Evitar múltiples cargas simultáneas
 
-    try {
-      console.log("🌐 Cargando datos del dashboard...");
+      setLoading(true);
+      setError(null);
 
-      // Cargar datos de totales generales
-      const responseTotales = await axios.get(
-        `${API_BASE_URL}/dashboard/totales`,
-        {
-          params: {
-            fechaInicio: "2025-01-01",
-            fechaFin: "2025-11-11",
-          },
-          timeout: 15000,
+      try {
+        // Generar fechas dinámicas si no se proporcionan
+        const hoy = new Date();
+        const primerDiaAnio = new Date(hoy.getFullYear(), 0, 1);
+
+        const fechaInicioFinal =
+          fechaInicio || primerDiaAnio.toISOString().split("T")[0];
+        const fechaFinFinal = fechaFin || hoy.toISOString().split("T")[0];
+
+        const [responseTotales, responseAreas] = await Promise.all([
+          axios.get(`${API_BASE_URL}/dashboard/totales`, {
+            params: { fechaInicio: fechaInicioFinal, fechaFin: fechaFinFinal },
+            timeout: 15000,
+          }),
+          axios.get(`${API_BASE_URL}/dashboard/resumen-inicio`, {
+            params: { tipo: "0", otroAnio: "", idAdjunta: idAdjunta },
+            timeout: 15000,
+          }),
+        ]);
+
+        if (responseTotales.data?.totales && responseAreas.data) {
+          const { totales, timestamp } = responseTotales.data;
+          const datosAreas = responseAreas.data;
+
+          const areasFormateadas = datosAreas.slice(1).map((area, index) => ({
+            id: area.idarea || area.id || index + 1,
+            siglas: area.siglas || `Área ${index + 1}`,
+            nombre: area.nombre || area.siglas,
+            atendidos:
+              parseInt(area.atendidos) || parseInt(area.atendidosArea) || 0,
+            pendientes:
+              parseInt(area.pendientes) || parseInt(area.totalPend) || 0,
+            vencidos: parseInt(area.vencidos) || 0,
+            porvencer: parseInt(area.porvencer) || 0,
+            sinvencer: parseInt(area.sinvencer) || 0,
+            porcentajes: area.porcentajes || calcularPorcentajes(area),
+          }));
+
+          const fechaHoraFinal =
+            datosAreas[0]?.fechaHora ||
+            (timestamp
+              ? new Date(timestamp).toLocaleString()
+              : new Date().toLocaleString());
+
+          setDashboardData({
+            fechaHora: fechaHoraFinal,
+            totales: {
+              totalGral: totales.totalGral,
+              totalAtendidos: totales.totalAtendidos,
+              totalPendientes: totales.totalPendientes,
+              totalReuniones: totales.totalReuniones,
+            },
+            areas: areasFormateadas,
+          });
+
+          console.log("✅ Dashboard recargado exitosamente");
         }
-      );
-
-      // Cargar datos del resumen de áreas (endpoint original)
-      const responseAreas = await axios.get(
-        `${API_BASE_URL}/dashboard/resumen-inicio`,
-        {
-          params: {
-            tipo: "0", // Resumen general
-            otroAnio: "",
-            idAdjunta: "1",
-          },
-          timeout: 15000,
-        }
-      );
-
-      if (
-        responseTotales.data &&
-        responseTotales.data.totales &&
-        responseAreas.data
-      ) {
-        const { totales, timestamp } = responseTotales.data;
-        const datosAreas = responseAreas.data;
-
-        // Procesar datos de áreas como en el hook original
-        const areasFormateadas = datosAreas.slice(1).map((area, index) => ({
-          id: area.idarea || index + 1,
-          siglas: area.siglas || `Área ${index + 1}`,
-          nombre: area.nombre || area.siglas,
-          atendidos: parseInt(area.atendidos) || 0,
-          pendientes: parseInt(area.pendientes) || 0,
-          vencidos: parseInt(area.vencidos) || 0,
-          porvencer: parseInt(area.porvencer) || 0,
-          sinvencer: parseInt(area.sinvencer) || 0,
-          porcentajes: calcularPorcentajes(area),
-        }));
-
-        setDashboardData({
-          fechaHora: new Date(timestamp).toLocaleString(),
-          totales: {
-            totalGral: totales.totalGral,
-            totalAtendidos: totales.totalAtendidos,
-            totalPendientes: totales.totalPendientes,
-            totalReuniones: totales.totalReuniones,
-          },
-          areas: areasFormateadas, // Ahora incluimos las áreas
-        });
+      } catch (error) {
+        console.error("❌ Error recargando datos:", error);
+        setError("Error recargando los datos del dashboard");
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error("❌ Error cargando datos desde API:", error);
-
-      if (error.code === "ECONNABORTED") {
-        setError("Tiempo de espera agotado. Intenta nuevamente.");
-      } else if (error.response?.status === 401) {
-        setError("Sesión expirada. Redirigiendo al login...");
-      } else {
-        setError("Error cargando los datos del dashboard desde API externa");
-      }
-    } finally {
-      setLoading(false);
-    }
-  }, [calcularPorcentajes]);
+    },
+    [calcularPorcentajes, loading]
+  );
 
   /**
    * Consulta pendientes (mantener endpoint existente para el modal)
@@ -161,19 +156,198 @@ export const useDashboardAPIExterna = (user) => {
   }, []);
 
   /**
-   * Inicialización automática
+   * Genera años disponibles para filtrado (funcionalidad del hook original)
+   */
+  const generarAnios = useCallback(() => {
+    const anioActual = new Date().getFullYear();
+    const anios = [];
+    for (let i = anioActual; i >= 2010; i--) {
+      anios.push(i);
+    }
+    return anios;
+  }, []);
+
+  /**
+   * Obtiene área adjunta basada en el nivel del usuario (funcionalidad del hook original)
+   */
+  const obtenerAreaAdjunta = useCallback(async (idarea, nivel) => {
+    try {
+      if (parseInt(nivel) <= 2) {
+        return idarea;
+      }
+
+      const response = await axios.get(
+        `${API_BASE_URL}/dashboard/area-superior`,
+        {
+          params: { idarea, nivel },
+          timeout: 5000,
+        }
+      );
+
+      return response.data || idarea;
+    } catch (error) {
+      console.warn(
+        "⚠️ Error obteniendo área adjunta, usando área original:",
+        error
+      );
+      return idarea;
+    }
+  }, []);
+
+  /**
+   * Inicialización automática con soporte para usuario - SIN BUCLE INFINITO
    */
   useEffect(() => {
-    cargarTotales();
-  }, [cargarTotales]);
+    const inicializar = async () => {
+      if (loading) return; // Evitar múltiples cargas simultáneas
+
+      setLoading(true);
+      setError(null);
+
+      try {
+        let idAdjunta = "1";
+
+        // Si hay usuario, determinar área adjunta
+        if (user && (user.areaActual || user.idArea)) {
+          const userArea = user.areaActual || user.idArea;
+          const userNivel = user.nivel || "1";
+
+          // Lógica directa sin useCallback para evitar bucle
+          if (parseInt(userNivel) > 2) {
+            try {
+              const response = await axios.get(
+                `${API_BASE_URL}/dashboard/area-superior`,
+                {
+                  params: { idarea: userArea, nivel: userNivel },
+                  timeout: 5000,
+                }
+              );
+              idAdjunta = response.data || userArea;
+            } catch (error) {
+              console.warn(
+                "⚠️ Error obteniendo área adjunta, usando área original"
+              );
+              idAdjunta = userArea;
+            }
+          } else {
+            idAdjunta = userArea;
+          }
+        }
+
+        // Cargar datos directamente sin useCallback
+        console.log("🌐 Cargando datos del dashboard...");
+
+        // Generar fechas dinámicas
+        const hoy = new Date();
+        const primerDiaAnio = new Date(hoy.getFullYear(), 0, 1);
+
+        const fechaInicioFinal = primerDiaAnio.toISOString().split("T")[0]; // Ejemplo: "2025-01-01"
+        const fechaFinFinal = hoy.toISOString().split("T")[0]; // Ejemplo: "2025-11-14"
+
+        // Cargar datos de totales generales
+        const responseTotales = await axios.get(
+          `${API_BASE_URL}/dashboard/totales`,
+          {
+            params: {
+              fechaInicio: fechaInicioFinal,
+              fechaFin: fechaFinFinal,
+            },
+            timeout: 15000,
+          }
+        );
+
+        // Cargar datos del resumen de áreas
+        const responseAreas = await axios.get(
+          `${API_BASE_URL}/dashboard/resumen-inicio`,
+          {
+            params: {
+              tipo: "0",
+              otroAnio: "",
+              idAdjunta: idAdjunta,
+            },
+            timeout: 15000,
+          }
+        );
+
+        if (
+          responseTotales.data &&
+          responseTotales.data.totales &&
+          responseAreas.data
+        ) {
+          const { totales, timestamp } = responseTotales.data;
+          const datosAreas = responseAreas.data;
+
+          // Procesar datos de áreas
+          const areasFormateadas = datosAreas.slice(1).map((area, index) => ({
+            id: area.idarea || area.id || index + 1,
+            siglas: area.siglas || `Área ${index + 1}`,
+            nombre: area.nombre || area.siglas,
+            atendidos:
+              parseInt(area.atendidos) || parseInt(area.atendidosArea) || 0,
+            pendientes:
+              parseInt(area.pendientes) || parseInt(area.totalPend) || 0,
+            vencidos: parseInt(area.vencidos) || 0,
+            porvencer: parseInt(area.porvencer) || 0,
+            sinvencer: parseInt(area.sinvencer) || 0,
+            porcentajes: area.porcentajes || calcularPorcentajes(area),
+          }));
+
+          const fechaHoraFinal =
+            datosAreas[0]?.fechaHora ||
+            (timestamp
+              ? new Date(timestamp).toLocaleString()
+              : new Date().toLocaleString());
+
+          setDashboardData({
+            fechaHora: fechaHoraFinal,
+            totales: {
+              totalGral: totales.totalGral,
+              totalAtendidos: totales.totalAtendidos,
+              totalPendientes: totales.totalPendientes,
+              totalReuniones: totales.totalReuniones,
+            },
+            areas: areasFormateadas,
+          });
+
+          console.log("✅ Dashboard cargado exitosamente");
+        }
+      } catch (error) {
+        console.error("❌ Error en inicialización:", error);
+
+        if (error.code === "ECONNABORTED") {
+          setError("Tiempo de espera agotado. Intenta nuevamente.");
+        } else if (error.response?.status === 401) {
+          setError("Sesión expirada. Redirigiendo al login...");
+        } else if (error.response?.status === 500) {
+          setError("Error interno del servidor. Intenta más tarde.");
+        } else {
+          setError("Error cargando los datos del dashboard");
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    // Solo ejecutar una vez o cuando cambie el usuario
+    inicializar();
+  }, [user?.areaActual, user?.idArea, user?.nivel]); // DEPENDENCIAS ESPECÍFICAS
 
   return {
+    // Estados
     loading,
     error,
     dashboardData,
+
+    // Métodos principales
     cargarTotales,
     consultarPendientes,
+
+    // Utilidades
     formatearNumero,
+    generarAnios,
+    obtenerAreaAdjunta,
+
+    // Setters (para compatibilidad)
     setError,
     setLoading,
   };

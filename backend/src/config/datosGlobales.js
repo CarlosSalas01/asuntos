@@ -7,7 +7,10 @@
 const ESTADO_PRODUCCION = process.env.NODE_ENV === "production" || false;
 const AUTENTICACION_LDAP = process.env.AUTENTICACION_LDAP === "true" || false;
 
-const VERSION = "2018.12.17";
+// Versiones del sistema para trazabilidad completa
+const VERSION_ORIGINAL = "2018.12.17"; // Última versión estable del sistema Java/JSP
+const VERSION_MIGRACION = "2025.11.12"; // Versión de migración a Node.js/React
+const VERSION = `${VERSION_MIGRACION} (migrado desde ${VERSION_ORIGINAL})`;
 
 /**
  * Configuración de base de datos basada en DatosGlobales.java
@@ -95,6 +98,8 @@ export default {
   ESTADO_PRODUCCION,
   AUTENTICACION_LDAP,
   VERSION,
+  VERSION_ORIGINAL,
+  VERSION_MIGRACION,
   getDatabaseConfig,
   getRutaSistema,
   getRuta,
