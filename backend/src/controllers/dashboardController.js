@@ -50,7 +50,7 @@ export const getTotalesAPIExterna = async (req, res) => {
       })
     );
 
-    const urlAPIExterna = `http://localhost:3002/asuntos_api/getdatos/${parametrosFecha}`;
+    const urlAPIExterna = `http://10.153.3.31:3002/asuntos_api/getdatos/${parametrosFecha}`;
 
     // Consultar API externa con timeout más largo y manejo de errores mejorado
     const response = await axios.get(urlAPIExterna, {
@@ -269,9 +269,9 @@ async function obtenerDatosResumen(otroAnio, idAdjunta, usuario) {
 
     // URLs de las APIs (usando configuración global)
     const urlResumen =
-      "http://localhost:3002/asuntos_api/getdatos/%7B%22resumen%22%3A%22true%22%7D";
+      "http://10.153.3.31:3002/asuntos_api/getdatos/%7B%22resumen%22%3A%22true%22%7D";
     const paramsFechas = `%7B%22fAsTot1%22%3A%22${fechaIni}%22%2C%22fAsTot2%22%3A%22${fechaFin}%22%7D`;
-    const urlTotales = `http://localhost:3002/asuntos_api/getdatos/${paramsFechas}`;
+    const urlTotales = `http://10.153.3.31:3002/asuntos_api/getdatos/${paramsFechas}`;
 
     // Obtener datos del API REST SOLR
     const [resumenResponse, reunionesSADirecta] = await Promise.all([
