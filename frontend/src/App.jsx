@@ -7,7 +7,7 @@ import {
 } from "react-router-dom";
 
 import Header from "./pages/Header/Header.jsx";
-import Home from "./pages/Home";
+import Home from "./components/dashboard/Home";
 import Asuntos from "./pages/Asuntos";
 import Login from "./pages/Login/Login.jsx";
 import SIA from "./pages/SIA";

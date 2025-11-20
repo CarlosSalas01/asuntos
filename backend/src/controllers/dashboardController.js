@@ -1,35 +1,47 @@
-/**
- * Controlador del Dashboard - Equivalente a ResumenInicio.java
- * Maneja las estadísticas y resúmenes del sistema
- *
- * MIGRACIÓN JAVA A NODE.JS COMPLETADA:
- * - FachadaDAO.java → /fachadas/FachadaDAO.js ✅
- * - AsuntoDAO.java → /dao/AsuntoDAO.js ✅
- * - AreaDAO.java → /dao/AreaDAO.js ✅
- * - AdministradorReportes.java → /services/AdministradorReportes.js ✅
- * - AdministradorDataSource.java → /config/administradorDataSource.js ✅
- * - DatosGlobales.java → /config/datosGlobales.js ✅
- *
- * Para usar FachadaDAO en lugar de consultas directas:
- * const fachada = new FachadaDAO();
- * const reunionesSA = await fachada.reunionesSinAcuerdo(anio);
- * await fachada.close(); // Cerrar conexiones
- */
-
 import axios from "axios";
 import datosGlobales from "../config/datosGlobales.js";
 import administradorDataSource from "../config/administradorDataSource.js";
 
 /**
+ * Obtiene reuniones sin acuerdos desde PostgreSQL
+ * Query específico para contar reuniones sin acuerdos del área 2
+ * que no tienen acciones registradas y están pendientes
+ */
+async function obtenerReunionesSinAcuerdos(fechaIni, fechaFin, usuario) {
+  try {
+    // Query específico solicitado: reuniones del área 2 sin acciones registradas
+    const sqlReunionesSA = `
+      SELECT count(*) as cantidad 
+      FROM controlasuntospendientesnew.asunto 
+      WHERE idarea = 2 
+        AND tipoasunto = 'R' 
+        AND NOT (idasunto IN (
+          SELECT idasunto 
+          FROM controlasuntospendientesnew.accion 
+          GROUP BY idasunto
+        )) 
+        AND estatus = 'P'
+    `;
+
+    const result = await administradorDataSource.executeQuery(sqlReunionesSA);
+
+    const cantidad = parseInt(result.rows[0]?.cantidad) || 0;
+    return cantidad;
+  } catch (error) {
+    console.error("Error obteniendo reuniones sin acuerdos:", error);
+    return 0;
+  }
+}
+
+/**
  * Obtiene totales desde la API externa de SOLR (como el sistema original)
  * Para ser usado por EstadisticasCards.jsx
+ * NOTA: Las reuniones sin acuerdos se obtienen de PostgreSQL con query específico
  */
 export const getTotalesAPIExterna = async (req, res) => {
+  const { fechaInicio = "2025-01-01", fechaFin = "2025-11-11" } = req.query;
+
   try {
-    const { fechaInicio = "2025-01-01", fechaFin = "2025-11-11" } = req.query;
-
-    console.log(`🌐 Cargando totales (${fechaInicio} - ${fechaFin})`);
-
     // Construir URL de la API externa con parámetros de fecha
     const parametrosFecha = encodeURIComponent(
       JSON.stringify({
@@ -38,7 +50,7 @@ export const getTotalesAPIExterna = async (req, res) => {
       })
     );
 
-    const urlAPIExterna = `http://10.153.3.31:3002/asuntos_api/getdatos/${parametrosFecha}`;
+    const urlAPIExterna = `http://localhost:3002/asuntos_api/getdatos/${parametrosFecha}`;
 
     // Consultar API externa con timeout más largo y manejo de errores mejorado
     const response = await axios.get(urlAPIExterna, {
@@ -59,6 +71,13 @@ export const getTotalesAPIExterna = async (req, res) => {
 
     const datosExternos = response.data.resumenAsunto[0];
 
+    // Obtener reuniones sin acuerdos desde PostgreSQL (query específico)
+    const reunionesSA = await obtenerReunionesSinAcuerdos(
+      fechaInicio,
+      fechaFin,
+      null
+    );
+
     // Adaptar al formato esperado por EstadisticasCards.jsx
     const totalesParaComponente = {
       fuente: "API_Externa_SOLR",
@@ -67,18 +86,14 @@ export const getTotalesAPIExterna = async (req, res) => {
         totalGral: datosExternos.atendidos + datosExternos.pendientes,
         totalAtendidos: datosExternos.atendidos,
         totalPendientes: datosExternos.pendientes,
-        totalReuniones: datosExternos.reunionesSA,
+        totalReuniones: reunionesSA, // Usar valor de PostgreSQL en lugar de API
       },
       timestamp: new Date(),
     };
 
-    console.log(
-      `✅ Totales obtenidos: ${totalesParaComponente.totales.totalAtendidos} atendidos, ${totalesParaComponente.totales.totalPendientes} pendientes`
-    );
-
     res.json(totalesParaComponente);
   } catch (error) {
-    console.error("❌ Error en getTotalesAPIExterna:", error.message);
+    console.error("Error en getTotalesAPIExterna:", error.message);
 
     // Fallback con datos vacíos (mejor que datos hardcodeados)
     const fallback = {
@@ -94,7 +109,6 @@ export const getTotalesAPIExterna = async (req, res) => {
       timestamp: new Date(),
     };
 
-    console.log("⚠️ Usando datos de respaldo vacíos");
     res.status(503).json(fallback); // 503 Service Unavailable es más apropiado
   }
 };
@@ -107,7 +121,7 @@ export const getTotalesPostgreSQL = async (req, res) => {
   try {
     const { fechaInicio = "2025-01-01", fechaFin = "2025-11-11" } = req.query;
 
-    console.log("� Consultando desde BD local...");
+    console.log("Consultando desde BD local...");
 
     // Consultas directas a PostgreSQL
     const queryAtendidos = `
@@ -157,7 +171,7 @@ export const getTotalesPostgreSQL = async (req, res) => {
 
     res.json(resultado);
   } catch (error) {
-    console.error("❌ Error en getTotalesPostgreSQL:", error);
+    console.error("Error en getTotalesPostgreSQL:", error);
     res.status(500).json({
       error: "Error obteniendo totales desde PostgreSQL",
       details: error.message,
@@ -172,12 +186,6 @@ export const getResumenInicio = async (req, res) => {
   try {
     const { tipo = "0", otroAnio, idAdjunta = "1" } = req.query;
     const usuario = req.user; // Del middleware de autenticación
-
-    console.log(
-      `Dashboard: ${
-        tipo === "0" ? "resumen general" : `detalles área ${req.query.idarea}`
-      }`
-    );
 
     if (tipo === "0") {
       // Obtener datos del resumen general REAL
@@ -246,39 +254,6 @@ async function obtenerTotalesGenerales(fechaIni, fechaFin, usuario) {
 }
 
 /**
- * Obtiene reuniones sin acuerdos desde PostgreSQL
- * Equivalente a AsuntoDAO.reunionesSinAcuerdo() del sistema original
- *
- * OPCIÓN 1: Consulta SQL directa (implementación actual)
- * OPCIÓN 2: Usar FachadaDAO (migrado de Java) - ver ejemplo comentado
- */
-async function obtenerReunionesSinAcuerdos(fechaIni, fechaFin, usuario) {
-  try {
-    console.log("🔍 Consultando reuniones sin acuerdos desde PostgreSQL...");
-
-    // OPCIÓN 1: SQL directa (actual)
-    const sqlReunionesSA = `
-      SELECT count(*) as cantidad
-      FROM controlasuntospendientesnew.asunto 
-      WHERE tipoasunto = 'R' 
-        AND estatus != 'A' 
-        AND fechaingreso >= $1 
-        AND fechaingreso <= $2
-    `;
-
-    const result = await administradorDataSource.executeQuery(sqlReunionesSA, [
-      fechaIni,
-      fechaFin,
-    ]);
-
-    const cantidad = parseInt(result.rows[0]?.cantidad) || 0;
-    return cantidad;
-  } catch (error) {
-    return 0;
-  }
-}
-
-/**
  * Obtiene datos del resumen desde APIs externas y base de datos
  */
 async function obtenerDatosResumen(otroAnio, idAdjunta, usuario) {
@@ -294,9 +269,9 @@ async function obtenerDatosResumen(otroAnio, idAdjunta, usuario) {
 
     // URLs de las APIs (usando configuración global)
     const urlResumen =
-      "http://10.153.3.31:3002/asuntos_api/getdatos/%7B%22resumen%22%3A%22true%22%7D";
+      "http://localhost:3002/asuntos_api/getdatos/%7B%22resumen%22%3A%22true%22%7D";
     const paramsFechas = `%7B%22fAsTot1%22%3A%22${fechaIni}%22%2C%22fAsTot2%22%3A%22${fechaFin}%22%7D`;
-    const urlTotales = `http://10.153.3.31:3002/asuntos_api/getdatos/${paramsFechas}`;
+    const urlTotales = `http://localhost:3002/asuntos_api/getdatos/${paramsFechas}`;
 
     // Obtener datos del API REST SOLR
     const [resumenResponse, reunionesSADirecta] = await Promise.all([
@@ -304,10 +279,21 @@ async function obtenerDatosResumen(otroAnio, idAdjunta, usuario) {
       obtenerReunionesSinAcuerdos(fechaIni, fechaFin, usuario), // SQL directa para reuniones SA
     ]);
 
+    console.log(`🌐 Respuesta de API SOLR tipo:`, typeof resumenResponse.data);
+    console.log(`🌐 Es array:`, Array.isArray(resumenResponse.data));
+    console.log(
+      `🌐 Contenido (primeros 2):`,
+      resumenResponse.data?.slice(0, 2)
+    );
+
     // El servicio SOLR devuelve directamente un array, no un objeto con propiedad resumenInicio
     const elementosAreas = Array.isArray(resumenResponse.data)
       ? resumenResponse.data
       : resumenResponse.data.resumenInicio || [];
+
+    console.log(
+      `🌐 Elementos de áreas extraídos: ${elementosAreas.length} elementos`
+    );
     let totalAtendidosCalculado = 0;
     let totalPendientesCalculado = 0;
 
@@ -336,21 +322,38 @@ async function obtenerDatosResumen(otroAnio, idAdjunta, usuario) {
     // Procesar datos por área
     const idAdjuntaInt = parseInt(idAdjunta);
 
+    console.log(
+      `📊 idAdjunta recibido: "${idAdjunta}" (tipo: ${typeof idAdjunta})`
+    );
+    console.log(`📊 Áreas totales en API externa: ${elementosAreas.length}`);
+
     if (idAdjunta !== "0" && idAdjunta !== "1") {
       // Filtrar por área específica
+      console.log(`🔍 Filtrando por área específica: ${idAdjuntaInt}`);
       const areaEspecifica = elementosAreas.find(
         (area) => area.idarea === idAdjuntaInt
       );
       if (areaEspecifica) {
         resultado.push(formatearDatosArea(areaEspecifica));
+        console.log(`✅ Área específica encontrada: ${areaEspecifica.siglas}`);
+      } else {
+        console.log(`⚠️ Área ${idAdjuntaInt} NO encontrada en API externa`);
       }
     } else {
       // Incluir todas las áreas
+      console.log(
+        `📋 Incluyendo TODAS las áreas (${elementosAreas.length} áreas)`
+      );
       elementosAreas.forEach((area) => {
         resultado.push(formatearDatosArea(area));
       });
     }
 
+    console.log(
+      `✅ Resultado final: ${resultado.length} elementos (1 total + ${
+        resultado.length - 1
+      } áreas)`
+    );
     return resultado;
   } catch (error) {
     console.error("Error obteniendo datos del resumen:", error);

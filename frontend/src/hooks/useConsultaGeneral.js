@@ -1,3 +1,7 @@
+//Este js contiene el hook personalizado useConsultaGeneral, que maneja la lógica
+//de la consulta general de asuntos, incluyendo la búsqueda con filtros,
+//la carga de áreas, y la navegación a consultas específicas según el tipo de asunto.
+
 import { useState, useCallback } from "react";
 import axios from "axios";
 
@@ -18,12 +22,19 @@ const useConsultaGeneral = () => {
    * Realiza la búsqueda general con los filtros especificados
    * Corregido para usar POST /api/busqueda-general según MAPEO_ARCHIVOS_MIGRACION.md
    */
+
+  //Usamos el useCallback para memorizar la función y evitar recrearla en cada render
+  //El parámetro de filtros es un objeto con las propiedades:
+  //fechas, fecha1, fecha2, areaFiltro, texto. Es asínncrono porque hace una llamada a la API
   const realizarBusqueda = useCallback(async (filtros) => {
+    //Estos setters son para manejar el estado de la búsqueda,
+    //el de loading indica que la búsqueda está en curso,
+    //y el de error para manejar cualquier error que ocurra
     setLoading(true);
     setError(null);
 
     try {
-      console.log("🔍 POST /api/busqueda-general con filtros:", filtros);
+      console.log("POST /api/busqueda-general con filtros:", filtros);
 
       // Usar POST con body según especificaciones exactas
       const response = await axios.post(
@@ -48,13 +59,13 @@ const useConsultaGeneral = () => {
 
       if (Array.isArray(resultados)) {
         setResultadosBusqueda(resultados);
-        console.log("✅ Búsqueda completada:", resultados);
       } else {
         throw new Error("Respuesta del servidor no válida");
       }
     } catch (error) {
-      console.error("❌ Error en búsqueda general:", error);
+      console.error("Error en búsqueda general:", error);
 
+      //Usamos el error de ENCONNABORTED para manejar timeouts
       if (error.code === "ECONNABORTED") {
         setError("Tiempo de espera agotado. Intenta nuevamente.");
       } else if (error.response?.status === 401) {
@@ -106,23 +117,14 @@ const useConsultaGeneral = () => {
    */
   const navegarAConsultaEspecifica = useCallback((tipoAsunto) => {
     const rutas = {
-      K: "/consulta-sia", // SIA
-      C: "/consulta-correos", // CORREOS
-      M: "/consulta-comisiones", // COMISIONES
-      R: "/consulta-reuniones", // REUNIONES
-      A: "/consulta-acuerdos", // ACUERDOS
+      K: "/consulta-sia",
+      C: "/consulta-correos",
+      M: "/consulta-comisiones",
+      R: "/consulta-reuniones",
+      A: "/consulta-acuerdos",
     };
 
-    const ruta = rutas[tipoAsunto];
-    if (ruta) {
-      console.log(
-        `🚀 Navegando a consulta específica: ${tipoAsunto} -> ${ruta}`
-      );
-      return ruta;
-    } else {
-      console.warn(`⚠️ Tipo de asunto no reconocido: ${tipoAsunto}`);
-      return null;
-    }
+    return rutas[tipoAsunto] || null;
   }, []);
 
   return {

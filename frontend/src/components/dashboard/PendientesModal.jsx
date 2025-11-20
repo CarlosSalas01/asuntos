@@ -156,19 +156,6 @@ const PendientesModal = ({ isOpen, onClose, modalData }) => {
 
         {/* Content */}
         <div className="p-6 overflow-y-auto max-h-[70vh]">
-          {/* Información del área y datos de depuración */}
-          {/* <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-700">
-            <div className="flex justify-between items-center text-sm">
-              <div className="text-blue-800 dark:text-blue-200">
-                <strong>Área:</strong>{" "}
-                {modalData[0]?.area?.nombre || modalData[0]?.area?.siglas}
-                <span className="ml-2 text-blue-600 dark:text-blue-300">
-                  (ID: {modalData[0]?.area?.idarea})
-                </span>
-              </div>
-            </div>
-          </div> */}
-
           <div className="overflow-x-auto">
             <table className="min-w-full table-auto border-collapse">
               <thead>

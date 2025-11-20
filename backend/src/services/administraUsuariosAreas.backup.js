@@ -1,4 +1,12 @@
 /**
+ * ARCHIVO DE RESPALDO - VERSIÓN CON TODAS LAS PROPIEDADES
+ *
+ * Este archivo contiene la versión extendida de convertirDTOaBean con todas las
+ * propiedades del usuario, en caso de que se necesiten en el futuro.
+ *
+ * VERSIÓN ACTUAL EN USO: administraUsuariosAreas.js (optimizada - solo propiedades necesarias)
+ * FECHA DE RESPALDO: 2025-11-19
+ *
  * Capa de negocio para administración de usuarios y áreas
  * Equivalente a AdministraUsuariosAreas.java
  */
@@ -117,24 +125,54 @@ class AdministraUsuariosAreas {
   }
 
   /**
-   * Convierte UsuarioDTO a UsuarioBean (equivalente al mapeo en Java)
-   * Solo incluye propiedades necesarias para el sistema
+   * ============================================================================
+   * VERSIÓN EXTENDIDA - Convierte UsuarioDTO a UsuarioBean con TODAS las propiedades
+   * ============================================================================
    *
-   * Estructura del usuarioBean:
-   * {
-   *   datos: {
-   *     idusuario: number,
-   *     username: string,
-   *     nombreCompleto: string,
-   *     superusuario: boolean
-   *   },
-   *   permisos: Array,
-   *   permisoActual: {
-   *     idarea: number,
-   *     rol: string,
-   *     descripcion: string
-   *   }
-   * }
+   * Esta es la versión completa que incluye TODAS las propiedades del usuario.
+   * Puede ser utilizada si en el futuro se necesitan campos adicionales como:
+   * - vigente: Estado de vigencia del usuario
+   * - activoestatus: Estado activo
+   * - correo1, correo2: Emails del usuario
+   * - responsable: Si es responsable de área
+   * - enviocorreoauto: Configuración de emails automáticos
+   * - nombre, apellido: Nombres por separado (además de nombreCompleto)
+   *
+   * Para activar esta versión:
+   * 1. Copiar este método a administraUsuariosAreas.js
+   * 2. Reemplazar el método convertirDTOaBean existente
+   * 3. Actualizar authController.js para enviar las propiedades adicionales
+   *
+   * @param {Object} usuarioDTO - DTO del usuario
+   */
+  convertirDTOaBeanExtendido(usuarioDTO) {
+    return {
+      datos: {
+        idusuario: usuarioDTO.idusuario,
+        username: usuarioDTO.username,
+        nombre: usuarioDTO.nombre,
+        apellido: usuarioDTO.apellido,
+        nombreCompleto: `${usuarioDTO.nombre} ${usuarioDTO.apellido}`,
+        vigente: usuarioDTO.vigente,
+        activoestatus: usuarioDTO.activoestatus,
+        correo1: usuarioDTO.correo1,
+        correo2: usuarioDTO.correo2,
+        responsable: usuarioDTO.responsable,
+        enviocorreoauto: usuarioDTO.enviocorreoauto,
+        superusuario: usuarioDTO.superusuario,
+      },
+      permisos: [],
+      permisoActual: null,
+    };
+  }
+
+  /**
+   * ============================================================================
+   * VERSIÓN OPTIMIZADA (ACTUALMENTE EN USO)
+   * ============================================================================
+   *
+   * Versión optimizada que solo incluye las propiedades necesarias
+   * Esta es la versión que está actualmente en administraUsuariosAreas.js
    *
    * @param {Object} usuarioDTO - DTO del usuario
    */

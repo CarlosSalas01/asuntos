@@ -30,10 +30,10 @@ const ConsultaAsuntosGeneral = () => {
   // Estado inicial de filtros - equivalente a FiltroAsunto del sistema original
   const [filtros, setFiltros] = useState({
     fechas: "fechaingreso", // Equivalente a tipoFecha en FiltroAsunto
-    fecha1: "", // Fecha inicio
-    fecha2: "", // Fecha fin
-    areaFiltro: "0", // ID área (0 = todas las áreas)
-    texto: "", // Texto de búsqueda
+    fecha1: "",
+    fecha2: "",
+    areaFiltro: "0",
+    texto: "",
   });
 
   // Cargar áreas al montar el componente
@@ -47,7 +47,7 @@ const ConsultaAsuntosGeneral = () => {
    */
   const handleBuscar = (e) => {
     e.preventDefault();
-    console.log("🔍 Ejecutando búsqueda con filtros:", filtros);
+    console.log("Ejecutando búsqueda con filtros:", filtros);
     realizarBusqueda(filtros);
   };
 

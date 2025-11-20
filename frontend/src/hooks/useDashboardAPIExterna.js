@@ -20,7 +20,7 @@ export const useDashboardAPIExterna = (user) => {
       totalPendientes: 0,
       totalReuniones: 0,
     },
-    areas: [], // Por ahora vacío, enfoque en totales
+    areas: [],
   });
 
   /**
@@ -77,19 +77,22 @@ export const useDashboardAPIExterna = (user) => {
           const { totales, timestamp } = responseTotales.data;
           const datosAreas = responseAreas.data;
 
-          const areasFormateadas = datosAreas.slice(1).map((area, index) => ({
-            id: area.idarea || area.id || index + 1,
-            siglas: area.siglas || `Área ${index + 1}`,
-            nombre: area.nombre || area.siglas,
-            atendidos:
-              parseInt(area.atendidos) || parseInt(area.atendidosArea) || 0,
-            pendientes:
-              parseInt(area.pendientes) || parseInt(area.totalPend) || 0,
-            vencidos: parseInt(area.vencidos) || 0,
-            porvencer: parseInt(area.porvencer) || 0,
-            sinvencer: parseInt(area.sinvencer) || 0,
-            porcentajes: area.porcentajes || calcularPorcentajes(area),
-          }));
+          const areasFormateadas = datosAreas
+            .slice(1)
+            .map((area, index) => ({
+              id: area.idarea || area.id || index + 1,
+              siglas: area.siglas || `Área ${index + 1}`,
+              nombre: area.nombre || area.siglas,
+              atendidos:
+                parseInt(area.atendidos) || parseInt(area.atendidosArea) || 0,
+              pendientes:
+                parseInt(area.pendientes) || parseInt(area.totalPend) || 0,
+              vencidos: parseInt(area.vencidos) || 0,
+              porvencer: parseInt(area.porvencer) || 0,
+              sinvencer: parseInt(area.sinvencer) || 0,
+              porcentajes: area.porcentajes || calcularPorcentajes(area),
+            }))
+            .sort((a, b) => a.siglas.localeCompare(b.siglas)); // Ordenar alfabéticamente
 
           const fechaHoraFinal =
             datosAreas[0]?.fechaHora ||
@@ -108,10 +111,10 @@ export const useDashboardAPIExterna = (user) => {
             areas: areasFormateadas,
           });
 
-          console.log("✅ Dashboard recargado exitosamente");
+          console.log("Dashboard recargado exitosamente");
         }
       } catch (error) {
-        console.error("❌ Error recargando datos:", error);
+        console.error("Error recargando datos:", error);
         setError("Error recargando los datos del dashboard");
       } finally {
         setLoading(false);
@@ -187,7 +190,7 @@ export const useDashboardAPIExterna = (user) => {
       return response.data || idarea;
     } catch (error) {
       console.warn(
-        "⚠️ Error obteniendo área adjunta, usando área original:",
+        "Error obteniendo área adjunta, usando área original:",
         error
       );
       return idarea;
@@ -208,8 +211,8 @@ export const useDashboardAPIExterna = (user) => {
         let idAdjunta = "1";
 
         // Si hay usuario, determinar área adjunta
-        if (user && (user.areaActual || user.idArea)) {
-          const userArea = user.areaActual || user.idArea;
+        if (user && user.idArea) {
+          const userArea = user.idArea; // Usar solo idArea (número)
           const userNivel = user.nivel || "1";
 
           // Lógica directa sin useCallback para evitar bucle
@@ -235,8 +238,6 @@ export const useDashboardAPIExterna = (user) => {
         }
 
         // Cargar datos directamente sin useCallback
-        console.log("🌐 Cargando datos del dashboard...");
-
         // Generar fechas dinámicas
         const hoy = new Date();
         const primerDiaAnio = new Date(hoy.getFullYear(), 0, 1);
@@ -278,20 +279,22 @@ export const useDashboardAPIExterna = (user) => {
           const datosAreas = responseAreas.data;
 
           // Procesar datos de áreas
-          const areasFormateadas = datosAreas.slice(1).map((area, index) => ({
-            id: area.idarea || area.id || index + 1,
-            siglas: area.siglas || `Área ${index + 1}`,
-            nombre: area.nombre || area.siglas,
-            atendidos:
-              parseInt(area.atendidos) || parseInt(area.atendidosArea) || 0,
-            pendientes:
-              parseInt(area.pendientes) || parseInt(area.totalPend) || 0,
-            vencidos: parseInt(area.vencidos) || 0,
-            porvencer: parseInt(area.porvencer) || 0,
-            sinvencer: parseInt(area.sinvencer) || 0,
-            porcentajes: area.porcentajes || calcularPorcentajes(area),
-          }));
-
+          const areasFormateadas = datosAreas
+            .slice(1)
+            .map((area, index) => ({
+              id: area.idarea || area.id || index + 1,
+              siglas: area.siglas || `Área ${index + 1}`,
+              nombre: area.nombre || area.siglas,
+              atendidos:
+                parseInt(area.atendidos) || parseInt(area.atendidosArea) || 0,
+              pendientes:
+                parseInt(area.pendientes) || parseInt(area.totalPend) || 0,
+              vencidos: parseInt(area.vencidos) || 0,
+              porvencer: parseInt(area.porvencer) || 0,
+              sinvencer: parseInt(area.sinvencer) || 0,
+              porcentajes: area.porcentajes || calcularPorcentajes(area),
+            }))
+            .sort((a, b) => a.siglas.localeCompare(b.siglas)); // Ordenar alfabéticamente
           const fechaHoraFinal =
             datosAreas[0]?.fechaHora ||
             (timestamp
@@ -308,12 +311,8 @@ export const useDashboardAPIExterna = (user) => {
             },
             areas: areasFormateadas,
           });
-
-          console.log("✅ Dashboard cargado exitosamente");
         }
       } catch (error) {
-        console.error("❌ Error en inicialización:", error);
-
         if (error.code === "ECONNABORTED") {
           setError("Tiempo de espera agotado. Intenta nuevamente.");
         } else if (error.response?.status === 401) {

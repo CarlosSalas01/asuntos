@@ -1,9 +1,9 @@
 import React, { useState, memo } from "react";
-import { useTheme } from "../context/ThemeContext";
-import { useDashboardAPIExterna } from "../hooks/useDashboardAPIExterna";
-import GeneralStats from "../components/dashboard/EstadisticasCards";
-import AreaCard from "../components/dashboard/AreaCard";
-import PendientesModal from "../components/dashboard/PendientesModal";
+import { useTheme } from "../../context/ThemeContext";
+import { useDashboardAPIExterna } from "../../hooks/useDashboardAPIExterna";
+import GeneralStats from "./EstadisticasCards";
+import AreaCard from "./AreaCard";
+import PendientesModal from "./PendientesModal";
 
 const Home = memo(() => {
   const { isDarkMode } = useTheme();
@@ -13,12 +13,11 @@ const Home = memo(() => {
   // Memoizar usuario para evitar re-renderizados innecesarios
   const [user] = useState(() => {
     try {
-      return JSON.parse(localStorage.getItem("user") || "{}");
+      return JSON.parse(localStorage.getItem("userData") || "{}");
     } catch {
       return {};
     }
   });
-
   const {
     loading,
     error,
@@ -81,14 +80,22 @@ const Home = memo(() => {
 
         {/* Tarjetas por Área */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {dashboardData.areas.map((area) => (
-            <AreaCard
-              key={area.id}
-              area={area}
-              onConsultarPendientes={handleConsultarPendientes}
-              formatearNumero={formatearNumero}
-            />
-          ))}
+          {dashboardData?.areas && dashboardData.areas.length > 0 ? (
+            dashboardData.areas.map((area) => (
+              <AreaCard
+                key={area.id}
+                area={area}
+                onConsultarPendientes={handleConsultarPendientes}
+                formatearNumero={formatearNumero}
+              />
+            ))
+          ) : (
+            <div className="col-span-full text-center py-8">
+              <p className="text-gray-500 dark:text-gray-400">
+                No hay datos de áreas disponibles
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Modal para Pendientes */}

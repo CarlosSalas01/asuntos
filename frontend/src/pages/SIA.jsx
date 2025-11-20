@@ -94,45 +94,6 @@ const SIA = () => {
             buscar información específica.
           </p>
         </div>
-
-        {/* Formulario de filtros */}
-        <FormularioFiltros
-          onBuscar={handleBuscar}
-          areas={areas}
-          loading={loading}
-          className="mb-6"
-        />
-
-        {/* Mensaje de error */}
-        {error && (
-          <div
-            className={`p-4 rounded-lg border ${
-              isDarkMode
-                ? "bg-red-900 border-red-700 text-red-200"
-                : "bg-red-50 border-red-200 text-red-800"
-            }`}
-          >
-            <div className="flex">
-              <div className="flex-shrink-0">
-                <span className="text-red-400">⚠️</span>
-              </div>
-              <div className="ml-3">
-                <h3 className="text-sm font-medium">Error en la búsqueda</h3>
-                <div className="mt-2 text-sm">{error}</div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Tabla de resultados */}
-        {(mostrarResultados || loading) && (
-          <TablaResultados
-            resultados={resultadosBusqueda}
-            loading={loading}
-            onClickTipoAsunto={handleClickTipoAsunto}
-            className="mb-6"
-          />
-        )}
       </div>
     </div>
   );

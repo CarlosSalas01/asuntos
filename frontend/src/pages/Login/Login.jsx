@@ -152,20 +152,6 @@ const Login = ({ onLogin }) => {
                   )}
                 </button>
               </div>
-
-              {/* <div className="text-center">
-                <p className="text-sm text-gray-400">Credenciales de prueba:</p>
-                <div className="text-xs text-gray-500 mt-2 space-y-1">
-                  <p>
-                    <strong>Usuario:</strong> admin |{" "}
-                    <strong>Contraseña:</strong> admin123 (Administrador)
-                  </p>
-                  <p>
-                    <strong>Usuario:</strong> usuario |{" "}
-                    <strong>Contraseña:</strong> user123 (Usuario)
-                  </p>
-                </div>
-              </div> */}
             </form>
           </div>
         </div>
