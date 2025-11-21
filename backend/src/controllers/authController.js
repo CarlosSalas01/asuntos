@@ -73,11 +73,13 @@ const login = async (req, res, next) => {
       user: {
         id: usuarioBean.datos.idusuario,
         username: usuarioBean.datos.username,
-        nombre: usuarioBean.datos.nombreCompleto,
-        role: usuarioBean.permisoActual.rol,
-        idArea: usuarioBean.permisoActual.idarea || 1,
+        nombre: usuarioBean.datos.nombre,
+        role: usuarioBean.permisoActual.datos.rol, // Rol original de BD
+        rolDescripcion: usuarioBean.permisoActual.rolDescripcion, // "Responsable", "Administrador", etc.
+        idArea: usuarioBean.permisoActual.datos.idarea || 0,
         areaActual: usuarioBean.permisoActual.descripcion || "Sistema",
         nivel: usuarioBean.datos.superusuario ? 1 : 2,
+        totalPermisos: usuarioBean.permisos?.length || 1, // Cantidad de permisos del usuario
       },
     });
   } catch (error) {

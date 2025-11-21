@@ -55,13 +55,13 @@ export const contarAsuntos = async (tipo, filtros) => {
   }
 
   try {
-    console.log(`🔍 Contando asuntos tipo ${tipo}:`, { query, params });
+    console.log(`Contando asuntos tipo ${tipo}:`, { query, params });
     const result = await pool.query(query, params);
     const cantidad = parseInt(result.rows[0].cantidad) || 0;
-    console.log(`✅ ${tipo}: ${cantidad} asuntos`);
+    console.log(`${tipo}: ${cantidad} asuntos`);
     return cantidad;
   } catch (error) {
-    console.error(`❌ Error contando asuntos tipo ${tipo}:`, error);
+    console.error(`Error contando asuntos tipo ${tipo}:`, error);
     return 0;
   }
 };

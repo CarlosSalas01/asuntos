@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   InegiLogo,
   SpinnerIcon,
@@ -9,6 +10,7 @@ import {
 import { apiService } from "../../services/apiService";
 
 const Login = ({ onLogin }) => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     username: "",
     password: "",
@@ -49,9 +51,23 @@ const Login = ({ onLogin }) => {
       localStorage.setItem("authToken", response.token);
       localStorage.setItem("userRole", response.user.role);
       localStorage.setItem("userData", JSON.stringify(response.user));
+      localStorage.setItem("totalPermisos", response.user.totalPermisos || "1");
 
       // Notificar al componente padre sobre el login exitoso
       onLogin(response.user.username, response.user.role, response.user);
+
+      // Redirigir según cantidad de permisos
+      if (response.user.totalPermisos > 1) {
+        // Si tiene múltiples permisos, ir a página de selección de roles
+        console.log(
+          `Usuario tiene ${response.user.totalPermisos} permisos, redirigiendo a /roles`
+        );
+        navigate("/roles");
+      } else {
+        // Si solo tiene un permiso, ir directo al dashboard
+        console.log("Usuario tiene un solo permiso, redirigiendo al dashboard");
+        navigate("/");
+      }
     } catch (error) {
       console.error("Error en login:", error);
       setError(

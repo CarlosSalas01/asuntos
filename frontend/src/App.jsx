@@ -4,9 +4,11 @@ import {
   Routes,
   Route,
   Navigate,
+  useLocation,
 } from "react-router-dom";
 
 import Header from "./pages/Header/Header.jsx";
+import SimpleHeader from "./pages/Header/SimpleHeader.jsx";
 import Home from "./components/dashboard/Home";
 import Asuntos from "./pages/Asuntos";
 import Login from "./pages/Login/Login.jsx";
@@ -33,15 +35,20 @@ import Diario from "./pages/Reportes/Diario.jsx";
 import Reasignacion from "./pages/Reportes/Reasignacion.jsx";
 import ResponsReportes from "./pages/Reportes/ResponsReportes.jsx";
 import SemYMen from "./pages/Reportes/SemYMen.jsx";
+import Roles from "./pages/Roles/Roles.jsx";
 
 import { ThemeProvider, useTheme } from "./context/ThemeContext";
 import "./App.css";
 
 // Componente interno que usa el contexto
 function AppContent() {
+  const location = useLocation();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  // Rutas donde se usa SimpleHeader en lugar del Header completo
+  const rutasConSimpleHeader = ["/roles"];
 
   useEffect(() => {
     // Verificar si hay un token guardado al cargar la aplicación
@@ -58,6 +65,11 @@ function AppContent() {
   const handleLogin = (username, role, userData) => {
     setIsAuthenticated(true);
     setUser(userData);
+
+    // Redirigir según la cantidad de permisos del usuario
+    // Si tiene múltiples permisos, ir a /roles para que seleccione
+    // Si solo tiene un permiso, ir directo al dashboard
+    // Esta lógica se maneja en Login.jsx con navigate
   };
 
   const handleLogout = () => {
@@ -77,84 +89,80 @@ function AppContent() {
   }
 
   return (
-    <Router>
-      <div className="App min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-900 dark:to-slate-800 transition-colors duration-300">
-        {!isAuthenticated ? (
-          <Routes>
-            <Route path="/login" element={<Login onLogin={handleLogin} />} />
-            <Route path="*" element={<Navigate to="/login" replace />} />
-          </Routes>
-        ) : (
-          <>
+    <div className="App min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-900 dark:to-slate-800 transition-colors duration-300">
+      {!isAuthenticated ? (
+        <Routes>
+          <Route path="/login" element={<Login onLogin={handleLogin} />} />
+          <Route path="*" element={<Navigate to="/login" replace />} />
+        </Routes>
+      ) : (
+        <>
+          {rutasConSimpleHeader.includes(location.pathname) ? (
+            <SimpleHeader user={user} onLogout={handleLogout} />
+          ) : (
             <Header user={user} onLogout={handleLogout} />
-            <main className="main-content">
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/login" element={<Navigate to="/" replace />} />
-                <Route path="/sia" element={<SIA />} />
-                <Route path="/reuniones" element={<Reuniones />} />
-                <Route path="/correos" element={<Correos />} />
-                <Route path="/comisiones" element={<Comisiones />} />
-                <Route path="/convenios" element={<Convenios />} />
-                <Route path="/acuerdos" element={<Acuerdos />} />
-                <Route path="/consulta-general" element={<ConsultaGral />} />
+          )}
+          <main className="main-content">
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/login" element={<Navigate to="/" replace />} />
+              <Route path="/sia" element={<SIA />} />
+              <Route path="/reuniones" element={<Reuniones />} />
+              <Route path="/correos" element={<Correos />} />
+              <Route path="/comisiones" element={<Comisiones />} />
+              <Route path="/convenios" element={<Convenios />} />
+              <Route path="/acuerdos" element={<Acuerdos />} />
+              <Route path="/consulta-general" element={<ConsultaGral />} />
 
-                {/* Nueva consulta general con TablaResultados */}
-                <Route
-                  path="/consulta-asuntos-general"
-                  element={<ConsultaAsuntosGeneral />}
-                />
+              {/* Nueva consulta general con TablaResultados */}
+              <Route
+                path="/consulta-asuntos-general"
+                element={<ConsultaAsuntosGeneral />}
+              />
 
-                {/* Rutas específicas de navegación desde TablaResultados */}
-                <Route path="/consulta-sia" element={<ConsultaSIA />} />
-                <Route path="/consulta-correos" element={<ConsultaCorreos />} />
-                <Route
-                  path="/consulta-comisiones"
-                  element={<ConsultaComisiones />}
-                />
-                <Route
-                  path="/consulta-reuniones"
-                  element={<ConsultaReuniones />}
-                />
-                <Route
-                  path="/consulta-acuerdos"
-                  element={<ConsultaAcuerdos />}
-                />
+              {/* Rutas específicas de navegación desde TablaResultados */}
+              <Route path="/consulta-sia" element={<ConsultaSIA />} />
+              <Route path="/consulta-correos" element={<ConsultaCorreos />} />
+              <Route
+                path="/consulta-comisiones"
+                element={<ConsultaComisiones />}
+              />
+              <Route
+                path="/consulta-reuniones"
+                element={<ConsultaReuniones />}
+              />
+              <Route path="/consulta-acuerdos" element={<ConsultaAcuerdos />} />
 
-                <Route path="/reportes" element={<Reportes />} />
-                <Route path="/asuntos" element={<Asuntos />} />
-                <Route path="/asuntos-sia" element={<AsuntosSIA />} />
-                <Route path="/correos-captura" element={<CorreosCaptura />} />
-                <Route path="/atendidos-y-pendientes" element={<AtenYPend />} />
-                <Route path="/diario" element={<Diario />} />
-                <Route path="/reasignacion" element={<Reasignacion />} />
-                <Route
-                  path="/responsabilidad-reportes"
-                  element={<ResponsReportes />}
-                />
-                <Route path="/semanal-mensual" element={<SemYMen />} />
-                <Route
-                  path="/convenios-captura"
-                  element={<ConveniosCaptura />}
-                />
-                <Route
-                  path="/reuniones-captura"
-                  element={<ReunionesCaptura />}
-                />
-                <Route path="*" element={<Navigate to="/" replace />} />
-              </Routes>
-            </main>
-          </>
-        )}
-      </div>
-    </Router>
+              <Route path="/reportes" element={<Reportes />} />
+              <Route path="/asuntos" element={<Asuntos />} />
+              <Route path="/asuntos-sia" element={<AsuntosSIA />} />
+              <Route path="/correos-captura" element={<CorreosCaptura />} />
+              <Route path="/atendidos-y-pendientes" element={<AtenYPend />} />
+              <Route path="/diario" element={<Diario />} />
+              <Route path="/reasignacion" element={<Reasignacion />} />
+              <Route
+                path="/responsabilidad-reportes"
+                element={<ResponsReportes />}
+              />
+              <Route path="/semanal-mensual" element={<SemYMen />} />
+              <Route path="/convenios-captura" element={<ConveniosCaptura />} />
+              <Route path="/reuniones-captura" element={<ReunionesCaptura />} />
+              <Route path="/roles" element={<Roles />} />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </main>
+        </>
+      )}
+    </div>
   );
 }
 
 function App() {
   return (
     <ThemeProvider>
-      <AppContent />
+      <Router>
+        <AppContent />
+      </Router>
     </ThemeProvider>
   );
 }

@@ -243,8 +243,8 @@ async function obtenerTotalesGenerales(fechaIni, fechaFin, usuario) {
         (parseInt(totales.pendientes) || 0),
     };
   } catch (error) {
-    console.error("❌ Error en obtenerTotalesGenerales:", error);
-    console.log("🔄 Retornando totales por defecto como fallback");
+    console.error("Error en obtenerTotalesGenerales:", error);
+    console.log("Retornando totales por defecto como fallback");
     return {
       totalAtendidos: 0,
       totalPendientes: 0,

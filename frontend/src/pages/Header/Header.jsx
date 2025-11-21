@@ -149,7 +149,7 @@ function Header({ user, onLogout }) {
                 {user?.nombre?.charAt(0).toUpperCase() || "U"}
               </div>
               <span className="text-sm text-gray-200">
-                {user?.role || "Usuario"}
+                {user?.rolDescripcion || user?.role || "Usuario"}
               </span>
               <svg
                 className={`w-4 h-4 transition-transform duration-200 ${
@@ -183,12 +183,24 @@ function Header({ user, onLogout }) {
                     {user?.nombre || "Usuario"}
                   </div>
                   <div className="text-xs text-gray-500 dark:text-gray-400">
-                    {user?.role === "admin" ? "Administrador" : "Usuario"}
+                    {user?.rolDescripcion || user?.role || "Usuario"}
                   </div>
                 </div>
               </div>
 
               <hr className="border-t border-gray-200 dark:border-gray-600 m-0" />
+
+              {/* Mostrar "Cambiar rol" solo si tiene múltiples permisos */}
+              {localStorage.getItem("totalPermisos") > 1 && (
+                <>
+                  <Link to="/roles">
+                    <button className="flex items-center justify-center gap-3 w-full py-3 px-4 border-1 bg-transparent text-gray-600 dark:text-gray-400 text-sm cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-950/25 transition-colors">
+                      Cambiar rol
+                    </button>
+                  </Link>
+                  <hr className="border-t border-gray-200 dark:border-gray-600 m-0" />
+                </>
+              )}
 
               <button
                 onClick={handleLogout}

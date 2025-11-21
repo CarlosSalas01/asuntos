@@ -15,8 +15,7 @@ class AreaDAO {
   async getArea(idarea) {
     try {
       const query = `
-        SELECT idarea, nombre, siglas, nivel, dependede, idresponsable, 
-               fechacreacion, estatus, descripcion
+        SELECT idarea, nombre, siglas, nivel, dependede, idresponsable, activa
         FROM controlasuntospendientesnew.area 
         WHERE idarea = $1
       `;
@@ -55,10 +54,9 @@ class AreaDAO {
       }
 
       const query = `
-        SELECT idarea, nombre, siglas, nivel, dependede, idresponsable, 
-               fechacreacion, estatus, descripcion
+        SELECT idarea, nombre, siglas, nivel, dependede, idresponsable, activa
         FROM controlasuntospendientesnew.area 
-        WHERE dependede = $1 AND estatus = 'A'
+        WHERE dependede = $1 AND activa = true
         ${orderByClause}
       `;
 
@@ -79,11 +77,10 @@ class AreaDAO {
   async areasSubNivel(dependeD) {
     try {
       const query = `
-        SELECT idarea, nombre, siglas, nivel, dependede, idresponsable, 
-               fechacreacion, estatus, descripcion
+        SELECT idarea, nombre, siglas, nivel, dependede, idresponsable, activa
         FROM controlasuntospendientesnew.area 
         WHERE nivel > (SELECT nivel FROM controlasuntospendientesnew.area WHERE idarea = $1)
-          AND estatus = 'A'
+          AND activa = true
         ORDER BY nivel, nombre
       `;
 
@@ -104,10 +101,9 @@ class AreaDAO {
   async areasResponsablesxNivel(nivel) {
     try {
       const query = `
-        SELECT idarea, nombre, siglas, nivel, dependede, idresponsable, 
-               fechacreacion, estatus, descripcion
+        SELECT idarea, nombre, siglas, nivel, dependede, idresponsable, activa
         FROM controlasuntospendientesnew.area 
-        WHERE nivel = $1 AND estatus = 'A'
+        WHERE nivel = $1 AND activa = true
         ORDER BY nombre
       `;
 
@@ -126,10 +122,9 @@ class AreaDAO {
   async obtenTodasAreas() {
     try {
       const query = `
-        SELECT idarea, nombre, siglas, nivel, dependede, idresponsable, 
-               fechacreacion, estatus, descripcion
+        SELECT idarea, nombre, siglas, nivel, dependede, idresponsable, activa
         FROM controlasuntospendientesnew.area 
-        WHERE estatus = 'A'
+        WHERE activa = true
         ORDER BY nivel, nombre
       `;
 
@@ -148,11 +143,10 @@ class AreaDAO {
   async buscaAreaSuperior(idarea) {
     try {
       const query = `
-        SELECT p.idarea, p.nombre, p.siglas, p.nivel, p.dependede, p.idresponsable, 
-               p.fechacreacion, p.estatus, p.descripcion
+        SELECT p.idarea, p.nombre, p.siglas, p.nivel, p.dependede, p.idresponsable, p.activa
         FROM controlasuntospendientesnew.area a
         INNER JOIN controlasuntospendientesnew.area p ON a.dependede = p.idarea
-        WHERE a.idarea = $1 AND p.estatus = 'A'
+        WHERE a.idarea = $1 AND p.activa = true
       `;
 
       const result = await administradorDataSource.executeQuery(query, [
@@ -177,10 +171,9 @@ class AreaDAO {
   async areasResponsablesNivel0y1() {
     try {
       const query = `
-        SELECT idarea, nombre, siglas, nivel, dependede, idresponsable, 
-               fechacreacion, estatus, descripcion
+        SELECT idarea, nombre, siglas, nivel, dependede, idresponsable, activa
         FROM controlasuntospendientesnew.area 
-        WHERE nivel IN (0, 1) AND estatus = 'A'
+        WHERE nivel IN (0, 1) AND activa = true
         ORDER BY nivel, nombre
       `;
 
@@ -198,11 +191,10 @@ class AreaDAO {
   async buscarAreas(criterio) {
     try {
       const query = `
-        SELECT idarea, nombre, siglas, nivel, dependede, idresponsable, 
-               fechacreacion, estatus, descripcion
+        SELECT idarea, nombre, siglas, nivel, dependede, idresponsable, activa
         FROM controlasuntospendientesnew.area 
         WHERE (LOWER(nombre) LIKE LOWER($1) OR LOWER(siglas) LIKE LOWER($1))
-          AND estatus = 'A'
+          AND activa = true
         ORDER BY nivel, nombre
       `;
 

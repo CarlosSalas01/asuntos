@@ -12,6 +12,7 @@ import dotenv from "dotenv";
 import authRoutes from "./routes/auth.js";
 import dashboardRoutes from "./routes/dashboardRoutes.js";
 import consultaGeneralRoutes from "./routes/consultaGeneralRoutes.js";
+import rolesRoutes from "./routes/roles.js";
 import administradorDataSource from "./config/administradorDataSource.js";
 import datosGlobales from "./config/datosGlobales.js";
 
@@ -43,6 +44,7 @@ app.get("/", (req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/busqueda-general", consultaGeneralRoutes);
+app.use("/api/roles", rolesRoutes);
 
 // Manejo de rutas no encontradas
 app.use("*", (req, res) => {
