@@ -1,9 +1,12 @@
 /**
  * Configuración global del sistema - Equivalente a DatosGlobales.java
- * Centraliza todas las configuraciones del sistema
+ * Centraliza todas las configuraciones del sistema, incluyendo base de datos,
+ * rutas, versiones, token y autenticación.
  */
 
 // Configuración del entorno
+// const ESTADO_PRODUCCION = process.env.NODE_ENV === "production" || false;
+// const AUTENTICACION_LDAP = process.env.AUTENTICACION_LDAP === "true" || false;
 const ESTADO_PRODUCCION = process.env.NODE_ENV === "production" || false;
 const AUTENTICACION_LDAP = process.env.AUTENTICACION_LDAP === "true" || false;
 
@@ -26,11 +29,11 @@ const getDatabaseConfig = () => {
       password: process.env.DB_PASSWORD || "asuntos1218",
       ssl: false,
       // Configuración del pool de conexiones (equivalente a BasicDataSource)
-      max: 10, // MaxTotal
-      min: 1, // MinIdle
-      idle: 5000, // TimeBetweenEvictionRunsMillis
-      acquire: 5000, // MaxWaitMillis
-      evict: 5000, // RemoveAbandonedTimeout * 1000
+      max: 10,
+      min: 1,
+      idle: 5000,
+      acquire: 5000,
+      evict: 5000,
     };
   } else {
     // Configuración de desarrollo/prueba

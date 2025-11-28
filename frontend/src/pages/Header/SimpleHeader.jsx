@@ -44,9 +44,7 @@ function SimpleHeader({ user, onLogout }) {
         {/* Logo - Lado izquierdo */}
         <div className="py-3">
           <h1 className="text-xl font-bold">
-            <Link to="/" className="text-white">
-              <InegiLogo className="h-9 w-auto filter brightness-0 invert" />
-            </Link>
+            <InegiLogo className="h-9 w-auto filter brightness-0 invert" />
           </h1>
         </div>
 

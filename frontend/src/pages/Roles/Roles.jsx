@@ -259,7 +259,7 @@ const Roles = () => {
           </div>
         </div>
 
-        <div className="mt-6 text-center">
+        {/* <div className="mt-6 text-center">
           <button
             onClick={() => navigate("/")}
             className={`text-sm ${
@@ -270,7 +270,7 @@ const Roles = () => {
           >
             Volver al dashboard
           </button>
-        </div>
+        </div> */}
       </div>
     </div>
   );

@@ -1,5 +1,4 @@
 /**
- * Consultas SQL para asuntos - Equivalente a DelegadoNegocio.java líneas 672-701
  * Implementa las 3 consultas específicas según MAPEO_ARCHIVOS_MIGRACION.md
  *
  * ESTRUCTURA EXACTA:
@@ -12,10 +11,9 @@ import administradorDataSource from "../config/administradorDataSource.js";
 
 /**
  * Cuenta asuntos por tipo (K=SIA, C=CORREOS, M=COMISIONES)
- * Equivalente a AsuntoDAO.cantidadAsuntosxAreaxTipo() línea 1465
- * @param {string} tipo - Tipo de asunto ('K', 'C', 'M')
- * @param {Object} filtros - Filtros de búsqueda
- * @returns {Promise<number>} Cantidad de asuntos
+ * @param {string} tipo
+ * @param {Object} filtros
+ * @returns {Promise<number>}
  */
 export const contarAsuntos = async (tipo, filtros) => {
   const pool = administradorDataSource.getPool();

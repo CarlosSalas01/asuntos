@@ -14,42 +14,10 @@ import { authenticateToken } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-/**
- * GET /api/resumen-inicio
- * Obtiene el resumen del dashboard principal
- * Query params: tipo, otroAnio, idAdjunta, idarea
- */
-// Temporalmente sin autenticación para pruebas
 router.get("/resumen-inicio", getResumenInicio);
-
-/**
- * GET /api/area-superior
- * Obtiene el área superior de una área dada
- * Query params: idarea, nivel
- */
-// Temporalmente sin autenticación para pruebas
 router.get("/area-superior", getAreaSuperior);
-
-/**
- * GET /api/dashboard/pendientes-detalle
- * Obtiene el detalle de pendientes por tipo para un área específica
- * Query params: idarea, fechaInicio, fechaFin
- */
-// Temporalmente sin autenticación para pruebas
 router.get("/pendientes-detalle", getDetallesPendientes);
-
-/**
- * GET /api/dashboard/totales-postgresql
- * Obtiene totales desde PostgreSQL para comparación
- * Query params: fechaInicio, fechaFin
- */
 router.get("/totales-postgresql", getTotalesPostgreSQL);
-
-/**
- * GET /api/dashboard/totales
- * Obtiene totales desde API externa SOLR (para EstadisticasCards.jsx)
- * Query params: fechaInicio, fechaFin
- */
 router.get("/totales", getTotalesAPIExterna);
 
 export default router;

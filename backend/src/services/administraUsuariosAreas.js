@@ -1,6 +1,10 @@
 /**
- * Capa de negocio para administración de usuarios y áreas
- * Equivalente a AdministraUsuariosAreas.java
+ * Este archivo contiene la lógica para administrar usuarios y sus áreas/permisos.
+ * Equivalente a AdministraUsuariosAreas.java en el sistema original.
+ *
+ * Funcionalidades principales:
+ * - Autenticación de usuarios (buscaUsuario)
+ * - Carga de permisos y áreas asociadas (cargaPermisosUsuarios)
  */
 
 import usuarioDAO from "../dao/usuarioDAO.js";
@@ -303,17 +307,6 @@ class AdministraUsuariosAreas {
   }
 
   /**
-   * Construye la descripción completa del permiso
-   * Equivalente a PermisoBean.getDescripcion() del Java original
-   *
-   * Ejemplos:
-   * - 'A' + null → "Administrador"
-   * - 'A' + {siglas: 'DGAIIG'} → "Administrador (DGAIIG)"
-   * - 'R' + {siglas: 'DGAIIG'} → "Responsable (DGAIIG)"
-   * - 'RA' + {siglas: 'DMG'} → "Responsable Administrador (DMG)"
-   * - 'C' + {siglas: 'DMG'} → "Consulta (DMG)"
-   * - 'V' + null → "Convenios"
-   *
    * @param {string} rol - Rol del permiso ('A', 'R', 'RA', 'C', 'E', 'V', 'U')
    * @param {Object} areaData - Datos del área (opcional)
    */

@@ -1,13 +1,26 @@
-import * as asuntosService from "../services/asuntosService.js";
+/**
+ * Controller de Asuntos - Maneja operaciones CRUD y consultas de asuntos
+ *
+ * FUNCIONALIDADES:
+ * - Consultas generales de asuntos
+ * - Consultas específicas de SIA (Sistema Integral de Asuntos)
+ * - Exportación de datos (HTML/CSV)
+ * - CRUD de asuntos (en desarrollo)
+ */
+
+import AsuntoDAO from "../dao/AsuntoDAO.js";
+
+const asuntoDAO = new AsuntoDAO();
 
 // Obtener todos los asuntos
 export const obtenerAsuntos = async (req, res, next) => {
   try {
-    const asuntos = await asuntosService.obtenerTodosLosAsuntos();
-    res.json({
-      success: true,
-      data: asuntos,
-      count: asuntos.length,
+    // TODO: Implementar método en AsuntoDAO para obtener todos los asuntos
+    res.status(501).json({
+      success: false,
+      message:
+        "Endpoint en desarrollo. Use /api/dashboard o /api/consulta-general para consultas de asuntos.",
+      info: "Este endpoint será implementado cuando se requiera funcionalidad CRUD completa de asuntos.",
     });
   } catch (error) {
     next(error);
@@ -18,18 +31,13 @@ export const obtenerAsuntos = async (req, res, next) => {
 export const obtenerAsuntoPorId = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const asunto = await asuntosService.obtenerAsuntoPorId(id);
 
-    if (!asunto) {
-      return res.status(404).json({
-        success: false,
-        message: "Asunto no encontrado",
-      });
-    }
-
-    res.json({
-      success: true,
-      data: asunto,
+    // TODO: Implementar método en AsuntoDAO
+    res.status(501).json({
+      success: false,
+      message:
+        "Endpoint en desarrollo. Use /api/consulta-general para búsquedas específicas.",
+      info: "Este endpoint será implementado cuando se requiera funcionalidad CRUD completa de asuntos.",
     });
   } catch (error) {
     next(error);
@@ -39,11 +47,11 @@ export const obtenerAsuntoPorId = async (req, res, next) => {
 // Crear un nuevo asunto
 export const crearAsunto = async (req, res, next) => {
   try {
-    const nuevoAsunto = await asuntosService.crearAsunto(req.body);
-    res.status(201).json({
-      success: true,
-      message: "Asunto creado exitosamente",
-      data: nuevoAsunto,
+    // TODO: Implementar método de creación en AsuntoDAO
+    res.status(501).json({
+      success: false,
+      message: "Endpoint en desarrollo.",
+      info: "La creación de asuntos se implementará según los requerimientos del negocio.",
     });
   } catch (error) {
     next(error);
@@ -54,22 +62,12 @@ export const crearAsunto = async (req, res, next) => {
 export const actualizarAsunto = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const asuntoActualizado = await asuntosService.actualizarAsunto(
-      id,
-      req.body
-    );
 
-    if (!asuntoActualizado) {
-      return res.status(404).json({
-        success: false,
-        message: "Asunto no encontrado",
-      });
-    }
-
-    res.json({
-      success: true,
-      message: "Asunto actualizado exitosamente",
-      data: asuntoActualizado,
+    // TODO: Implementar método de actualización en AsuntoDAO
+    res.status(501).json({
+      success: false,
+      message: "Endpoint en desarrollo.",
+      info: "La actualización de asuntos se implementará según los requerimientos del negocio.",
     });
   } catch (error) {
     next(error);
@@ -80,18 +78,12 @@ export const actualizarAsunto = async (req, res, next) => {
 export const eliminarAsunto = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const eliminado = await asuntosService.eliminarAsunto(id);
 
-    if (!eliminado) {
-      return res.status(404).json({
-        success: false,
-        message: "Asunto no encontrado",
-      });
-    }
-
-    res.json({
-      success: true,
-      message: "Asunto eliminado exitosamente",
+    // TODO: Implementar método de eliminación en AsuntoDAO
+    res.status(501).json({
+      success: false,
+      message: "Endpoint en desarrollo.",
+      info: "La eliminación de asuntos se implementará según los requerimientos del negocio.",
     });
   } catch (error) {
     next(error);

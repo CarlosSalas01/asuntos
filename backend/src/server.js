@@ -13,9 +13,10 @@ import authRoutes from "./routes/auth.js";
 import dashboardRoutes from "./routes/dashboardRoutes.js";
 import consultaGeneralRoutes from "./routes/consultaGeneralRoutes.js";
 import rolesRoutes from "./routes/roles.js";
+import asuntosRoutes from "./routes/asuntos.js";
 import administradorDataSource from "./config/administradorDataSource.js";
 import datosGlobales from "./config/datosGlobales.js";
-
+import siaRoutes from "./routes/sia.js";
 // Configuración de variables de entorno. Las variables de entorno vienen siendo cargadas desde un archivo .env en el root del proyecto
 dotenv.config();
 
@@ -28,6 +29,20 @@ app.use(cors()); // CORS
 app.use(morgan("combined")); // Logging
 app.use(express.json()); // Parser JSON
 app.use(express.urlencoded({ extended: true })); // Parser URL
+app.use("/api/asuntos", asuntosRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/dashboard", dashboardRoutes);
+app.use("/api/busqueda-general", consultaGeneralRoutes);
+app.use("/api/roles", rolesRoutes);
+app.use("/api/sia", siaRoutes);
+
+// Manejo de rutas no encontradas
+app.use("*", (req, res) => {
+  res.status(404).json({
+    error: "Ruta no encontrada",
+    message: `La ruta ${req.originalUrl} no existe`,
+  });
+});
 
 // Rutas
 app.get("/", (req, res) => {
@@ -38,19 +53,6 @@ app.get("/", (req, res) => {
     versionMigracion: datosGlobales.VERSION_MIGRACION,
     status: "active",
     migration: "Java/JSP → Node.js/React",
-  });
-});
-
-app.use("/api/auth", authRoutes);
-app.use("/api/dashboard", dashboardRoutes);
-app.use("/api/busqueda-general", consultaGeneralRoutes);
-app.use("/api/roles", rolesRoutes);
-
-// Manejo de rutas no encontradas
-app.use("*", (req, res) => {
-  res.status(404).json({
-    error: "Ruta no encontrada",
-    message: `La ruta ${req.originalUrl} no existe`,
   });
 });
 

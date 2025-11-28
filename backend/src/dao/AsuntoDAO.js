@@ -4,6 +4,7 @@
  */
 
 import administradorDataSource from "../config/administradorDataSource.js";
+import AsuntoBean from "../models/AsuntoBean.js";
 
 class AsuntoDAO {
   constructor(areas = null) {
@@ -41,6 +42,92 @@ class AsuntoDAO {
       console.error("Error en cantidadAsuntosxAreaxTipo:", error);
       return { cantidad: 0 };
     }
+  }
+
+  async buscarAsuntosPorAreaxTipo(filtro, tipo) {
+    let sql = `SELECT * FROM controlasuntospendientesnew.asunto AS a WHERE tipoasunto = $1`;
+    let params = [tipo];
+    let paramIndex = 2; // PostgreSQL usa $1, $2, ...
+
+    // Filtros de área
+    if (filtro.idarea > 0) {
+      sql += ` AND idasunto IN (SELECT idasunto FROM controlasuntospendientesnew.responsable WHERE `;
+      if (filtro.idareaDelegada > 0) {
+        sql += `idarea = $${paramIndex++}`;
+        params.push(filtro.idareaDelegada);
+        if (filtro.estatusResp && filtro.estatusResp !== "T") {
+          sql += ` AND estatus = $${paramIndex++}`;
+          params.push(filtro.estatusResp);
+        }
+        sql += ` AND asignadopor = $${paramIndex++} AND estatus <> 'C'`;
+        params.push(filtro.idarea);
+      } else {
+        sql += `idarea = $${paramIndex++}`;
+        params.push(filtro.idarea);
+        if (filtro.estatusResp && filtro.estatusResp !== "T") {
+          sql += ` AND estatus = $${paramIndex++}`;
+          params.push(filtro.estatusResp);
+        }
+      }
+      sql += `)`;
+    } else if (filtro.areasConsulta && filtro.areasConsulta.length > 0) {
+      // Si hay varias áreas
+      sql += ` AND idasunto IN (SELECT idasunto FROM controlasuntospendientesnew.responsable WHERE (`;
+      filtro.areasConsulta.forEach((area, idx) => {
+        if (filtro.estatusResp && filtro.estatusResp !== "T") {
+          sql += `(idarea = $${paramIndex++} AND estatus = $${paramIndex++}) OR `;
+          params.push(area.idarea, filtro.estatusResp);
+        } else {
+          sql += `idarea = $${paramIndex++} OR `;
+          params.push(area.idarea);
+        }
+      });
+      sql = sql.slice(0, -4) + `))`; // Elimina el último ' OR '
+    }
+
+    // Filtros de fecha
+    if (filtro.tipoFecha === "atencion") {
+      sql += ` AND substring(fechaatencion,1,8) >= $${paramIndex++} AND substring(fechaatencion,1,8) <= $${paramIndex++}`;
+      params.push(filtro.fechaInicio, filtro.fechaFinal);
+    }
+    if (filtro.tipoFecha === "asignado") {
+      sql += ` AND substring(fechaasignado,1,8) >= $${paramIndex++} AND substring(fechaasignado,1,8) <= $${paramIndex++}`;
+      params.push(filtro.fechaInicio, filtro.fechaFinal);
+    }
+
+    // Porcentaje de avance
+    if (filtro.porcentajeAvance) {
+      sql += ` AND avance = $${paramIndex++}`;
+      params.push(parseInt(filtro.porcentajeAvance));
+    }
+
+    // Orden y paginación
+    sql += ` ORDER BY idarea, idconsecutivo DESC`;
+    if (!filtro.limitAll) {
+      sql += ` LIMIT 50 OFFSET $${paramIndex++}`;
+      params.push(filtro.offset);
+    }
+
+    // Ejecuta la consulta
+    const result = await administradorDataSource.executeQuery(sql, params);
+
+    // Mapeo y procesamiento extra como en Java
+    const asuntos = result.rows.map((row) => {
+      const asunto = new AsuntoBean(row);
+      // Procesa descripción HTML
+      asunto.descripcionFormatoHTML = asunto.getDescripcionFormatoHTML?.();
+      // Procesa fechas formateadas
+      asunto.fechaingresoFormatoTexto = asunto.getFechaingresoFormatoTexto?.();
+      asunto.fechaoriginalFormatoTexto =
+        asunto.getFechaoriginalFormatoTexto?.();
+      // Puedes agregar más procesamiento aquí si lo necesitas
+      return asunto;
+    });
+
+    // Si necesitas complementar datos, puedes hacerlo aquí
+    // await complementaDatosAsunto(asuntos, 0);
+
+    return asuntos;
   }
 
   /**

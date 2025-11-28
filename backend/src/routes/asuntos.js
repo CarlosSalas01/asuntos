@@ -1,7 +1,21 @@
+/**
+ * Rutas de Asuntos
+ *
+ * ENDPOINTS ACTIVOS:
+// Comentarios de endpoints SIA eliminados
+ *
+ * ENDPOINTS EN DESARROLLO:
+ * - CRUD básico (GET, POST, PUT, DELETE)
+ */
+
 import express from "express";
 import * as asuntosController from "../controllers/asuntosController.js";
 
 const router = express.Router();
+
+// ============================================================================
+// CRUD BÁSICO - EN DESARROLLO
+// ============================================================================
 
 // GET /api/asuntos - Obtener todos los asuntos
 router.get("/", asuntosController.obtenerAsuntos);

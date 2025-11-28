@@ -19,8 +19,6 @@ class AdministradorReportes {
    */
   async obtenReportePorArea(idarea, filtro) {
     try {
-      console.log(`📊 Generando reporte para área ID: ${idarea}`);
-
       // Tipos de asunto según el sistema original Java
       const tiposAsunto = [
         { codigo: "K", nombre: "SIA" },
@@ -32,7 +30,6 @@ class AdministradorReportes {
       // Obtener información del área
       const areaData = await this.areaDAO.getArea(idarea);
       if (!areaData) {
-        console.log(`❌ Área ${idarea} no encontrada`);
         return [];
       }
 

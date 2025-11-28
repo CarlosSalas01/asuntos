@@ -29,8 +29,13 @@ apiClient.interceptors.request.use(
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
-      // Token expirado o inválido
+    // Solo redirigir a login si el error 401 NO viene del endpoint de login
+    // (es decir, solo redirigir cuando un token es inválido/expirado, no cuando las credenciales son incorrectas)
+    if (
+      error.response?.status === 401 &&
+      !error.config?.url?.includes("/auth/login")
+    ) {
+      // Token expirado o inválido en otras peticiones
       localStorage.removeItem("authToken");
       localStorage.removeItem("userData");
       localStorage.removeItem("userRole");

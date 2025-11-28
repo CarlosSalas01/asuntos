@@ -26,16 +26,14 @@ class AdministradorDataSource {
         user: dbConfig.user,
         password: dbConfig.password,
         ssl: dbConfig.ssl,
-        // Configuración del pool equivalente a BasicDataSource
-        max: dbConfig.max, // MaxTotal
-        min: dbConfig.min, // MinIdle
-        idleTimeoutMillis: dbConfig.idle, // TimeBetweenEvictionRunsMillis
-        acquireTimeoutMillis: dbConfig.acquire, // MaxWaitMillis
+        max: dbConfig.max,
+        min: dbConfig.min,
+        idleTimeoutMillis: dbConfig.idle,
+        acquireTimeoutMillis: dbConfig.acquire,
         createTimeoutMillis: 8000,
         destroyTimeoutMillis: 5000,
         reapIntervalMillis: 1000,
         createRetryIntervalMillis: 200,
-        // Configuración de validación (equivalente a validationQuery)
         keepAlive: true,
         keepAliveInitialDelayMillis: 10000,
       });

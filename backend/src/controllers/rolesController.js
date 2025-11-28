@@ -1,13 +1,10 @@
+// Este archivo se encarga de manejar las operaciones relacionadas con los roles y
+// permisos de los usuarios.
+
 import administraUsuariosAreas from "../services/administraUsuariosAreas.js";
 import permisoDAO from "../dao/permisoDAO.js";
+import { log } from "console";
 
-/**
- * Obtiene todos los permisos/roles del usuario autenticado
- * Equivalente a mostrar seleccionRol.jsp con la lista de permisos
- *
- * Retorna TODOS los permisos del usuario tal como están en la BD,
- * con sus áreas y descripciones completas cargadas
- */
 export const obtenerRolesUsuario = async (req, res) => {
   try {
     const userId = req.user.idusuario; // Del token JWT decodificado
@@ -40,7 +37,7 @@ export const obtenerRolesUsuario = async (req, res) => {
       idarea: p.datos.idarea,
       rol: p.datos.rol, // Rol original de BD: 'A', 'R', 'RA', 'C', 'E', 'V'
       rolDescripcion: p.rolDescripcion, // "Responsable", "Administrador", etc.
-      descripcion: p.descripcion, // "Responsable (DGAIIG)" - descripción completa
+      descripcion: p.descripcion, // Nombre del área o descripción del permiso
       area: p.areaBean?.datos || null, // Datos completos del área
       activo: p.activo,
       esPermisoActual:

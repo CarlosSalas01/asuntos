@@ -1,14 +1,3 @@
-/**
- * FachadaDAO.js - Node.js equivalent of FachadaDAO.java
- *
- * This facade orchestrates multiple DAOs to provide a comprehensive interface
- * for asunto, accion, avance, and responsable operations.
- * Migrated from Java servlet architecture to Node.js/Express.
- *
- * @author Sistema de Asuntos - Node.js Migration
- * @created 2025-11-05
- */
-
 import AsuntoDAO from "../dao/AsuntoDAO.js";
 import AreaDAO from "../dao/AreaDAO.js";
 import AdministradorReportes from "../services/AdministradorReportes.js";
@@ -37,7 +26,7 @@ class FachadaDAO {
   }
 
   /**
-   * Busca asunto asignado por responsable superior y ID asunto
+   * Busca asunto asi gnado por responsable superior y ID asunto
    * @param {number} idRSuperior - ID del responsable superior
    * @param {number} idasunto - ID del asunto
    * @returns {Promise<Object|null>} El asunto encontrado o null

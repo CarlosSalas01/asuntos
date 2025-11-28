@@ -65,7 +65,6 @@ const login = async (req, res, next) => {
     const token = administraUsuariosAreas.generarToken(usuarioBean);
 
     // Respuesta exitosa
-    // Objeto user optimizado - Solo propiedades utilizadas en el frontend
     res.json({
       success: true,
       message: "Login exitoso",
@@ -74,12 +73,12 @@ const login = async (req, res, next) => {
         id: usuarioBean.datos.idusuario,
         username: usuarioBean.datos.username,
         nombre: usuarioBean.datos.nombre,
-        role: usuarioBean.permisoActual.datos.rol, // Rol original de BD
-        rolDescripcion: usuarioBean.permisoActual.rolDescripcion, // "Responsable", "Administrador", etc.
+        role: usuarioBean.permisoActual.datos.rol,
+        rolDescripcion: usuarioBean.permisoActual.rolDescripcion,
         idArea: usuarioBean.permisoActual.datos.idarea || 0,
         areaActual: usuarioBean.permisoActual.descripcion || "Sistema",
         nivel: usuarioBean.datos.superusuario ? 1 : 2,
-        totalPermisos: usuarioBean.permisos?.length || 1, // Cantidad de permisos del usuario
+        totalPermisos: usuarioBean.permisos?.length || 1,
       },
     });
   } catch (error) {

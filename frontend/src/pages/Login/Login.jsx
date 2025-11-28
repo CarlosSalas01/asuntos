@@ -24,12 +24,16 @@ const Login = ({ onLogin }) => {
       ...prev,
       [name]: value,
     }));
-    // Limpiar error cuando el usuario empiece a escribir
-    if (error) setError("");
+    // No limpiar el error automáticamente mientras el usuario escribe
+    // Solo se limpiará cuando intente enviar el formulario de nuevo
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Prevenir múltiples envíos
+    if (isLoading) return;
+
     setIsLoading(true);
     setError("");
 
@@ -58,14 +62,8 @@ const Login = ({ onLogin }) => {
 
       // Redirigir según cantidad de permisos
       if (response.user.totalPermisos > 1) {
-        // Si tiene múltiples permisos, ir a página de selección de roles
-        console.log(
-          `Usuario tiene ${response.user.totalPermisos} permisos, redirigiendo a /roles`
-        );
         navigate("/roles");
       } else {
-        // Si solo tiene un permiso, ir directo al dashboard
-        console.log("Usuario tiene un solo permiso, redirigiendo al dashboard");
         navigate("/");
       }
     } catch (error) {
@@ -74,7 +72,6 @@ const Login = ({ onLogin }) => {
         error.message ||
           "Error de conexión. Verifica que el servidor esté ejecutándose."
       );
-    } finally {
       setIsLoading(false);
     }
   };
@@ -99,7 +96,11 @@ const Login = ({ onLogin }) => {
               </p>
             </div>
 
-            <form className="mt-8 space-y-6 w-full" onSubmit={handleSubmit}>
+            <form
+              className="mt-8 space-y-6 w-full"
+              onSubmit={handleSubmit}
+              autoComplete="off"
+            >
               <div className="space-y-4">
                 <div className="relative">
                   <label htmlFor="username" className="sr-only">

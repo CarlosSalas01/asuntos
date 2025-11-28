@@ -88,6 +88,8 @@ function AppContent() {
     );
   }
 
+  const isSIA = location.pathname === "/sia";
+
   return (
     <div className="App min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-900 dark:to-slate-800 transition-colors duration-300">
       {!isAuthenticated ? (
@@ -102,11 +104,11 @@ function AppContent() {
           ) : (
             <Header user={user} onLogout={handleLogout} />
           )}
-          <main className="main-content">
+          <main className={`main-content${isSIA ? " sia-full-width" : ""}`}>
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/login" element={<Navigate to="/" replace />} />
-              <Route path="/sia" element={<SIA />} />
+              <Route path="/sia" element={<SIA className="sia-full-width" />} />
               <Route path="/reuniones" element={<Reuniones />} />
               <Route path="/correos" element={<Correos />} />
               <Route path="/comisiones" element={<Comisiones />} />
