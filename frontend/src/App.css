@@ -13,9 +13,11 @@
 }
 
 .main-content.sia-full-width {
-  max-width: 100vw;
-  width: 100vw;
+  max-width: 100%;
+  width: 100%;
   margin: 0;
   padding-left: 25px;
   padding-right: 25px;
+  box-sizing: border-box;
+  overflow-x: hidden;
 }

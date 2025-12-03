@@ -7,6 +7,28 @@ import administradorDataSource from "../config/administradorDataSource.js";
 import AsuntoBean from "../models/AsuntoBean.js";
 
 class AsuntoDAO {
+  /**
+   * Obtiene asuntos con el query personalizado para la tabla SIA
+   */
+  async obtenerAsuntosTablaSIA() {
+    const sql = `
+        SELECT a.idasunto, a.fechaingreso, a.idconsecutivo, conteo.rowspan, c.siglas, b.estatus, b.delegado, a.descripcion
+        FROM controlasuntospendientesnew.asunto as a
+        INNER JOIN controlasuntospendientesnew.responsable b ON a.idasunto = b.idasunto
+        INNER JOIN controlasuntospendientesnew.area c ON b.idarea = c.idarea
+        INNER JOIN (
+          SELECT idasunto, COUNT(b2.*) AS rowspan
+          FROM controlasuntospendientesnew.responsable b2
+          INNER JOIN controlasuntospendientesnew.area c2 ON b2.idarea = c2.idarea AND c2.nivel=2
+          GROUP BY idasunto
+        ) AS conteo ON a.idasunto = conteo.idasunto
+        WHERE a.tipoasunto = 'C'
+        ORDER BY a.idconsecutivo DESC
+        LIMIT 10
+      `;
+    const result = await administradorDataSource.executeQuery(sql);
+    return result.rows;
+  }
   constructor(areas = null) {
     this.areas = areas;
   }
@@ -47,8 +69,7 @@ class AsuntoDAO {
   async buscarAsuntosPorAreaxTipo(filtro, tipo) {
     let sql = `SELECT * FROM controlasuntospendientesnew.asunto AS a WHERE tipoasunto = $1`;
     let params = [tipo];
-    let paramIndex = 2; // PostgreSQL usa $1, $2, ...
-
+    let paramIndex = 2;
     // Filtros de área
     if (filtro.idarea > 0) {
       sql += ` AND idasunto IN (SELECT idasunto FROM controlasuntospendientesnew.responsable WHERE `;
@@ -71,7 +92,6 @@ class AsuntoDAO {
       }
       sql += `)`;
     } else if (filtro.areasConsulta && filtro.areasConsulta.length > 0) {
-      // Si hay varias áreas
       sql += ` AND idasunto IN (SELECT idasunto FROM controlasuntospendientesnew.responsable WHERE (`;
       filtro.areasConsulta.forEach((area, idx) => {
         if (filtro.estatusResp && filtro.estatusResp !== "T") {
@@ -123,9 +143,6 @@ class AsuntoDAO {
       // Puedes agregar más procesamiento aquí si lo necesitas
       return asunto;
     });
-
-    // Si necesitas complementar datos, puedes hacerlo aquí
-    // await complementaDatosAsunto(asuntos, 0);
 
     return asuntos;
   }

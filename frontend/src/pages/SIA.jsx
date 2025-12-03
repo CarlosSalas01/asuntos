@@ -1,23 +1,24 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useTheme } from "../context/ThemeContext.jsx";
+import { RightArrow } from "../components/icons/CustomIcons.jsx";
 
 const SIA = ({ className = "" }) => {
   const { isDarkMode } = useTheme();
   const [asuntos, setAsuntos] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [filtroGeneral, setFiltroGeneral] = useState("");
+  const [filtroEstatus, setFiltroEstatus] = useState("");
+  const [mostrarFiltros, setMostrarFiltros] = useState(false);
 
   const [idarea, setIdarea] = useState("");
   const [fechaInicio, setFechaInicio] = useState("2025-01-01");
   const [fechaFin, setFechaFin] = useState("2025-12-31");
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    // const token = localStorage.getItem("token");
     axios
-      .get("/api/sia/asuntos", {
-        params: { idarea, fechaInicio, fechaFin },
-        headers: { Authorization: `Bearer ${token}` },
-      })
+      .get("/api/sia/asuntos")
       .then((res) => {
         setAsuntos(res.data);
         setLoading(false);
@@ -26,183 +27,177 @@ const SIA = ({ className = "" }) => {
         console.error(err);
         setLoading(false);
       });
-  }, [idarea, fechaInicio, fechaFin]);
+  }, []);
+
+  // Filtrar asuntos en tiempo real (sin buscar en descripción)
+  const asuntosFiltrados = asuntos.filter((asunto) => {
+    // Filtro por estatus
+    if (filtroEstatus && asunto.estatus !== filtroEstatus) {
+      return false;
+    }
+
+    // Filtro general
+    if (!filtroGeneral.trim()) return true;
+    const busqueda = filtroGeneral.trim().toLowerCase();
+
+    const coincide =
+      String(asunto.idasunto ?? "")
+        .toLowerCase()
+        .includes(busqueda) ||
+      String(asunto.fechaingreso ?? "")
+        .toLowerCase()
+        .includes(busqueda) ||
+      String(asunto.idconsecutivo ?? "")
+        .toLowerCase()
+        .includes(busqueda) ||
+      String(asunto.siglas ?? "")
+        .toLowerCase()
+        .includes(busqueda) ||
+      String(asunto.estatus ?? "")
+        .toLowerCase()
+        .includes(busqueda) ||
+      String(asunto.delegado ?? "")
+        .toLowerCase()
+        .includes(busqueda);
+
+    return coincide;
+  });
+
+  console.log(
+    "Filtro:",
+    filtroGeneral,
+    "Total:",
+    asuntos.length,
+    "Filtrados:",
+    asuntosFiltrados.length
+  );
 
   if (loading) return <div>Cargando...</div>;
   return (
-    <div className={`h-full w-full p-3 ${className}`}>
-      <h1 className="text-3xl font-bold my-6">
-        Sistema Integral de Asuntos (SIA)
-      </h1>
+    <div className={`h-full w-full p-3 overflow-hidden ${className}`}>
+      <div className="rounded-full bg-gradient-to-br from-blue-950 to-teal-950 text-white font-bold py-2 px-6 mb-4 w-fit ml-0">
+        <h1 className="text-lg font-bold my-0">Sistema Integral de Asuntos</h1>
+      </div>
       <div className="my-7"></div>
+      <div>
+        <h1
+          className="font-bold my-2 text-slate-700 dark:text-slate-200 text-lg cursor-pointer select-none flex items-center w-fit"
+          onClick={() => setMostrarFiltros(!mostrarFiltros)}
+        >
+          Filtros
+          <RightArrow
+            className={`inline-block ml-2 h-5 w-5 text-gray-500 transition-transform duration-300 ease-in-out ${
+              mostrarFiltros ? "rotate-90" : "rotate-0"
+            }`}
+          />
+        </h1>
+        <div
+          className={`flex gap-11 flex-wrap dark:bg-slate-800 bg-slate-200 border-2 border-dashed dark:border-slate-600 border-slate-400 p-4 rounded-md transition-all duration-300 ease-in-out overflow-hidden ${
+            mostrarFiltros
+              ? "max-h-96 opacity-100 mt-2"
+              : "max-h-0 opacity-0 p-0 border-0 mt-0"
+          }`}
+          id="divFiltros"
+        >
+          <div className="flex flex-col flex-1 min-w-[200px]">
+            <label className="font-medium text-slate-700 dark:text-slate-200 mb-1">
+              Búsqueda general
+            </label>
+            <input
+              type="text"
+              id="general"
+              placeholder="Ingresa texto"
+              className="py-2 px-2 rounded-md shadow-sm text-slate-700"
+              value={filtroGeneral}
+              onChange={(e) => setFiltroGeneral(e.target.value)}
+            />
+          </div>
+          {/* <div className="flex flex-col flex-1 min-w-[200px]">
+            <label className="font-medium text-slate-700 dark:text-slate-200 mb-1">
+              Fecha Inicio:
+            </label>
+            <input type="date" className="py-1 px-2 rounded-md shadow-sm" />
+          </div>
+          <div className="flex flex-col flex-1 min-w-[200px]">
+            <label className="font-medium text-slate-700 dark:text-slate-200 mb-1">
+              Fecha Fin:
+            </label>
+            <input type="date" className="py-1 px-2 rounded-md shadow-sm" />
+          </div> */}
 
-      <div className="overflow-x-auto rounded-sm shadow-sm">
-        <table className="w-full">
+          <div className="flex flex-col flex-1 min-w-[200px]">
+            <label className="font-medium text-slate-700 dark:text-slate-200 mb-1">
+              Estatus
+            </label>
+            <select
+              className="py-2 px-2 rounded-md shadow-sm text-slate-700"
+              value={filtroEstatus}
+              onChange={(e) => setFiltroEstatus(e.target.value)}
+            >
+              <option value="">Todos</option>
+              <option value="A">Activo</option>
+              <option value="P">Pendiente</option>
+            </select>
+          </div>
+        </div>
+        <hr
+          className={`border-slate-500 transition-all duration-300 ${
+            mostrarFiltros ? "mt-6" : "mt-0 mb-0"
+          }`}
+        />
+      </div>
+      <div className="my-7"></div>
+      <div className="rounded-sm shadow-sm overflow-hidden">
+        <table className="w-full border border-gray-300 table-fixed">
           <thead className="bg-gradient-to-br from-blue-950 to-teal-950 text-white py-4 shadow-md rounded-md">
             <tr>
-              <th className="px-3 py-2 text-sm text-center font-semibold text-white border dark:border-gray-700 border-gray-500">
-                Asunto
+              <th className="px-3 py-2 text-base text-center font-semibold text-white border border-gray-600 dark:border-gray-700 w-24">
+                ID Asunto
               </th>
-              <th className="px-3 py-2 text-sm text-center font-semibold text-white border dark:border-gray-700 border-gray-500">
-                Clasificación
+              <th className="px-3 py-2 text-base text-center font-semibold text-white border border-gray-600 dark:border-gray-700 w-28">
+                Fecha Ingreso
               </th>
-              <th className="px-3 py-2 text-sm text-center font-semibold text-white border dark:border-gray-700 border-gray-500">
+              <th className="px-3 py-2 text-base text-center font-semibold text-white border border-gray-600 dark:border-gray-700 w-28">
+                Consecutivo
+              </th>
+              <th className="px-3 py-2 text-base text-center font-semibold text-white border border-gray-600 dark:border-gray-700 w-24">
+                Siglas
+              </th>
+              <th className="px-3 py-2 text-base text-center font-semibold text-white border border-gray-600 dark:border-gray-700 w-20">
+                Estatus
+              </th>
+              <th className="px-3 py-2 text-base text-center font-semibold text-white border border-gray-600 dark:border-gray-700 w-24">
+                Delegado
+              </th>
+              <th className="px-3 py-2 text-base text-center font-semibold text-white border border-gray-600 dark:border-gray-700">
                 Descripción
-              </th>
-              <th className="px-3 py-2 text-sm text-center font-semibold text-white border dark:border-gray-700 border-gray-500">
-                Instrucción
-              </th>
-              <th className="px-3 py-2 text-sm text-center font-semibold text-white border dark:border-gray-700 border-gray-500">
-                Fecha envío
-              </th>
-              <th className="px-3 py-2 text-sm text-center font-semibold text-white border dark:border-gray-700 border-gray-500">
-                Fecha vencimiento
-              </th>
-              <th className="px-3 py-2 text-sm text-center font-semibold text-white border dark:border-gray-700 border-gray-500">
-                Anexos
-              </th>
-              <th className="px-3 py-2 text-sm text-center font-semibold text-white border dark:border-gray-700 border-gray-500">
-                Acciones
-              </th>
-              <th className="px-3 py-2 text-sm text-center font-semibold text-white border dark:border-gray-700 border-gray-500">
-                Destinatarios
-              </th>
-              <th className="px-3 py-2 text-sm text-center font-semibold text-white border dark:border-gray-700 border-gray-500">
-                Estatus Responsable
-              </th>
-              <th className="px-3 py-2 text-sm text-center font-semibold text-white border dark:border-gray-700 border-gray-500">
-                Avance
-              </th>
-              <th className="px-3 py-2 text-sm text-center font-semibold text-white border dark:border-gray-700 border-gray-500">
-                Fecha de atención
-              </th>
-              <th className="px-3 py-2 text-sm text-center font-semibold text-white border dark:border-gray-700 border-gray-500">
-                Días Proceso/Atención
-              </th>
-              <th className="px-3 py-2 text-sm text-center font-semibold text-white border dark:border-gray-700 border-gray-500">
-                Días retraso
-              </th>
-              <th className="px-3 py-2 text-sm text-center font-semibold text-white border dark:border-gray-700 border-gray-500">
-                Observaciones
               </th>
             </tr>
           </thead>
           <tbody>
-            {/* <tr className="bg-white text-center">
-              <td className="px-3 py-2 border border-gray-300 text-center dark:text-slate-700">
-                1
-              </td>
-              <td className="px-3 py-2 border border-gray-300 text-center dark:text-slate-700">
-                208291
-              </td>
-              <td className="px-3 py-2 border border-gray-300 text-center dark:text-slate-700">
-                878/2024
-              </td>
-              <td className="px-3 py-2 border border-gray-300 text-center dark:text-slate-700">
-                ASUNTO PRUEBAS
-              </td>
-              <td className="px-3 py-2 border border-gray-300 text-center dark:text-slate-700">
-                INST. PRUEBAS
-              </td>
-              <td className="px-3 py-2 border border-gray-300 text-center dark:text-slate-700">
-                2024-04-29
-              </td>
-              <td className="px-3 py-2 border border-gray-300 text-center dark:text-slate-700">
-                2024-04-30
-              </td>
-              <td className="px-3 py-2 border border-gray-300 text-center dark:text-slate-700">
-                -
-              </td>
-              <td className="px-3 py-2 border border-gray-300 text-center dark:text-slate-700">
-                DIRECCIÓN GENERAL ADJUNTA DE INTEGRACIÓN DE INFORMACIÓN
-                GEOESPACIAL
-              </td>
-              <td className="px-3 py-2 border border-gray-300 text-center dark:text-slate-700">
-                PENDIENTE
-              </td>
-              <td className="px-3 py-2 border border-gray-300 text-center dark:text-slate-700">
-                0%
-              </td>
-              <td className="px-3 py-2 border border-gray-300 text-center dark:text-slate-700">
-                -
-              </td>
-              <td className="px-3 py-2 border border-gray-300 text-center dark:text-slate-700">
-                2024-04-30
-              </td>
-              <td className="px-3 py-2 border border-gray-300 text-center dark:text-slate-700">
-                1
-              </td>
-              <td className="px-3 py-2 border border-gray-300 text-center dark:text-slate-700">
-                0
-              </td>
-            </tr>
-            <tr className="bg-gray-50">
-              <td className="px-3 py-2 border border-gray-300 text-center dark:text-slate-700">
-                2
-              </td>
-              <td className="px-3 py-2 border border-gray-300 text-center dark:text-slate-700">
-                208290
-              </td>
-              <td className="px-3 py-2 border border-gray-300 text-center dark:text-slate-700">
-                58/2024
-              </td>
-              <td className="px-3 py-2 border border-gray-300 text-center dark:text-slate-700">
-                ASUNTO TEST
-              </td>
-              <td className="px-3 py-2 border border-gray-300 text-center dark:text-slate-700">
-                PRUEBAS
-              </td>
-              <td className="px-3 py-2 border border-gray-300 text-center dark:text-slate-700">
-                2024-04-23
-              </td>
-              <td className="px-3 py-2 border border-gray-300 text-center dark:text-slate-700">
-                2024-04-26
-              </td>
-              <td className="px-3 py-2 border border-gray-300 text-center dark:text-slate-700">
-                -
-              </td>
-              <td className="px-3 py-2 border border-gray-300 text-center dark:text-slate-700">
-                DIRECCIÓN GENERAL ADJUNTA DE INTEGRACIÓN DE INFORMACIÓN
-                GEOESPACIAL
-              </td>
-              <td className="px-3 py-2 border border-gray-300 text-center">
-                PENDIENTE
-              </td>
-              <td className="px-3 py-2 border border-gray-300 text-center">
-                0%
-              </td>
-              <td className="px-3 py-2 border border-gray-300 text-center">
-                -
-              </td>
-              <td className="px-3 py-2 border border-gray-300 text-center">
-                2024-04-26
-              </td>
-              <td className="px-3 py-2 border border-gray-300 text-center">
-                3
-              </td>
-              <td className="px-3 py-2 border border-gray-300 text-center">
-                0
-              </td>
-            </tr> */}
-            {asuntos.map((asunto, idx) => (
-              <tr key={asunto.idconsecutivo}>
-                <td>{idx + 1}</td>
-                <td>{asunto.idconsecutivo}</td>
-                <td>{asunto.nocontrol}</td>
-                <td>{asunto.descripcionFormatoHTML}</td>
-                <td>{asunto.estatustexto}</td>
-                <td>{asunto.fechaEnvio}</td>
-                <td>{asunto.fechaVencimiento}</td>
-                <td>{asunto.anexos}</td>
-                <td>{asunto.acciones}</td>
-                <td>{asunto.acciones}</td>
-                <td>{asunto.acciones}</td>
-                <td>{asunto.acciones}</td>
-                <td>{asunto.acciones}</td>
-                <td>{asunto.acciones}</td>
-                {asunto.responsables.map((resp, rIdx) => (
-                  <td key={rIdx}>{resp.area.nombre}</td>
-                ))}
+            {asuntosFiltrados.map((asunto, index) => (
+              <tr key={`${asunto.idasunto}-${asunto.siglas}-${index}`}>
+                <td className="text-center dark:bg-slate-700 bg-gray-200 border border-gray-300 dark:border-gray-800 px-1">
+                  {asunto.idasunto}
+                </td>
+                <td className="text-center dark:bg-slate-700 bg-gray-200 border border-gray-300 dark:border-gray-800 px-1">
+                  {asunto.fechaingreso}
+                </td>
+                <td className="text-center dark:bg-slate-700  bg-gray-200 border border-gray-300 dark:border-gray-800 px-1">
+                  {asunto.idconsecutivo}
+                </td>
+                <td className="text-center dark:bg-slate-700 bg-gray-200 border border-gray-300 dark:border-gray-800 px-1">
+                  {asunto.siglas}
+                </td>
+                <td className="text-center dark:bg-slate-700 bg-gray-200 border border-gray-300 dark:border-gray-800 px-1">
+                  {asunto.estatus}
+                </td>
+                <td className="text-center dark:bg-slate-700 bg-gray-200 border border-gray-300 dark:border-gray-800 px-1">
+                  {asunto.delegado}
+                </td>
+                <td className="text-justify dark:bg-slate-700 bg-gray-200 border border-gray-300 dark:border-gray-800 p-2">
+                  {asunto.descripcion}
+                </td>
               </tr>
             ))}
           </tbody>

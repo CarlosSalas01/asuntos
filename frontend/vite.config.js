@@ -15,5 +15,12 @@ export default defineConfig({
     strictPort: false, // Permite cambiar de puerto si está ocupado
     open: true,
     host: "localhost",
+    proxy: {
+      "/api": {
+        target: "http://localhost:9003",
+        changeOrigin: true,
+        secure: false,
+      },
+    },
   },
 });
