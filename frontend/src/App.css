@@ -12,7 +12,13 @@
   width: 100%;
 }
 
-.main-content.sia-full-width {
+.main-content.sia-full-width,
+.main-content.reuniones-full-width,
+.main-content.correos-full-width,
+.main-content.acuerdos-full-width,
+.main-content.comisiones-full-width,
+.main-content.convenios-full-width,
+.main-content.consulta-full-width {
   max-width: 100%;
   width: 100%;
   margin: 0;

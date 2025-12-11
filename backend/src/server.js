@@ -17,6 +17,7 @@ import asuntosRoutes from "./routes/asuntos.js";
 import administradorDataSource from "./config/administradorDataSource.js";
 import datosGlobales from "./config/datosGlobales.js";
 import siaRoutes from "./routes/sia.js";
+import { filtroAcceso, manejoErrores } from "./middleware/filtroAcceso.js";
 // Configuración de variables de entorno. Las variables de entorno vienen siendo cargadas desde un archivo .env en el root del proyecto
 dotenv.config();
 
@@ -29,6 +30,11 @@ app.use(cors()); // CORS
 app.use(morgan("combined")); // Logging
 app.use(express.json()); // Parser JSON
 app.use(express.urlencoded({ extended: true })); // Parser URL
+
+// Filtro de acceso - Verifica autenticación en rutas protegidas
+app.use(filtroAcceso);
+
+// Rutas de la API
 app.use("/api/asuntos", asuntosRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/dashboard", dashboardRoutes);
@@ -44,6 +50,9 @@ app.use("*", (req, res) => {
   });
 });
 
+// Middleware de manejo de errores (debe ir al final)
+app.use(manejoErrores);
+
 // Rutas
 app.get("/", (req, res) => {
   res.json({
@@ -58,11 +67,11 @@ app.get("/", (req, res) => {
 
 // Manejo de errores no capturados
 process.on("uncaughtException", (error) => {
-  console.error("❌ Error no capturado:", error);
+  console.error("Error no capturado:", error);
 });
 
 process.on("unhandledRejection", (reason, promise) => {
-  console.error("❌ Promesa rechazada:", reason);
+  console.error("Promesa rechazada:", reason);
 });
 
 app.listen(PORT, async () => {
@@ -79,6 +88,5 @@ app.listen(PORT, async () => {
       `⚠️  Advertencia: No se pudo establecer conexión a BD:`,
       error.message
     );
-    console.log(`🔄 El sistema funcionará con usuarios de prueba`);
   }
 });

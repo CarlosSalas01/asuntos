@@ -47,7 +47,10 @@ const Home = memo(() => {
     return (
       <div className="p-8 text-center">
         <div className="bg-red-100 dark:bg-red-900 border border-red-400 text-red-700 dark:text-red-200 px-6 py-4 rounded-lg">
-          <h3 className="font-bold mb-2">Error en el Dashboard</h3>
+          <h3 className="font-bold mb-2">
+            Error en el Dashboard. Se requiere verificación en el backend y/o en
+            el servicio.
+          </h3>
           <p className="mb-4">{error}</p>
           <button
             onClick={() => window.location.reload()}

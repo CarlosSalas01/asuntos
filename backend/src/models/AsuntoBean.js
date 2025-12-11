@@ -17,7 +17,6 @@ class AsuntoBean {
     this.noResponsables = data.noResponsables || 0;
     this.estatustexto = data.estatustexto || "";
     this.descripcionFormatoHTML = data.descripcionFormatoHTML || "";
-    // ...agrega más atributos según necesidad...
   }
 
   // Métodos de utilidad
@@ -38,7 +37,6 @@ class AsuntoBean {
   }
 
   getReprogramado() {
-    // Devuelve true si el asunto tiene reprogramaciones
     return !!this.fechaUltimaReprogramacion;
   }
 
@@ -49,8 +47,6 @@ class AsuntoBean {
   setDescripcion(valor) {
     this.descripcion = valor;
   }
-
-  // ...agrega más métodos según necesidad...
 }
 
 export default AsuntoBean;

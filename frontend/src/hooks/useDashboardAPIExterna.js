@@ -8,6 +8,12 @@ import axios from "axios";
 const API_BASE_URL =
   import.meta.env.VITE_API_URL || "http://localhost:9003/api";
 
+// Función para obtener headers con token de autorización
+const getAuthHeaders = () => {
+  const token = localStorage.getItem("authToken");
+  return token ? { Authorization: `Bearer ${token}` } : {};
+};
+
 export const useDashboardAPIExterna = (user) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -65,10 +71,12 @@ export const useDashboardAPIExterna = (user) => {
         const [responseTotales, responseAreas] = await Promise.all([
           axios.get(`${API_BASE_URL}/dashboard/totales`, {
             params: { fechaInicio: fechaInicioFinal, fechaFin: fechaFinFinal },
+            headers: getAuthHeaders(),
             timeout: 15000,
           }),
           axios.get(`${API_BASE_URL}/dashboard/resumen-inicio`, {
             params: { tipo: "0", otroAnio: "", idAdjunta: idAdjunta },
+            headers: getAuthHeaders(),
             timeout: 15000,
           }),
         ]);
@@ -137,6 +145,7 @@ export const useDashboardAPIExterna = (user) => {
             tipo: "1", // Detalles de pendientes
             idarea: idarea,
           },
+          headers: getAuthHeaders(),
           timeout: 10000,
         }
       );
@@ -183,6 +192,7 @@ export const useDashboardAPIExterna = (user) => {
         `${API_BASE_URL}/dashboard/area-superior`,
         {
           params: { idarea, nivel },
+          headers: getAuthHeaders(),
           timeout: 5000,
         }
       );
@@ -222,6 +232,7 @@ export const useDashboardAPIExterna = (user) => {
                 `${API_BASE_URL}/dashboard/area-superior`,
                 {
                   params: { idarea: userArea, nivel: userNivel },
+                  headers: getAuthHeaders(),
                   timeout: 5000,
                 }
               );
@@ -253,6 +264,7 @@ export const useDashboardAPIExterna = (user) => {
               fechaInicio: fechaInicioFinal,
               fechaFin: fechaFinFinal,
             },
+            headers: getAuthHeaders(),
             timeout: 15000,
           }
         );
@@ -266,6 +278,7 @@ export const useDashboardAPIExterna = (user) => {
               otroAnio: "",
               idAdjunta: idAdjunta,
             },
+            headers: getAuthHeaders(),
             timeout: 15000,
           }
         );

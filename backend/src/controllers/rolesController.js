@@ -35,10 +35,10 @@ export const obtenerRolesUsuario = async (req, res) => {
     const permisos = usuarioBean.permisos.map((p) => ({
       idpermiso: p.datos.idpermiso,
       idarea: p.datos.idarea,
-      rol: p.datos.rol, // Rol original de BD: 'A', 'R', 'RA', 'C', 'E', 'V'
-      rolDescripcion: p.rolDescripcion, // "Responsable", "Administrador", etc.
-      descripcion: p.descripcion, // Nombre del área o descripción del permiso
-      area: p.areaBean?.datos || null, // Datos completos del área
+      rol: p.datos.rol,
+      rolDescripcion: p.rolDescripcion,
+      descripcion: p.descripcion,
+      area: p.areaBean?.datos || null,
       activo: p.activo,
       esPermisoActual:
         p.datos.idpermiso === usuarioBean.permisoActual?.datos?.idpermiso,
@@ -79,17 +79,6 @@ export const obtenerRolesUsuario = async (req, res) => {
   }
 };
 
-/**
- * Selecciona un rol/permiso específico para el usuario
- *
- * FLUJO COMPLETO (equivalente a SeleccionRol.java + IniciaSesion.java):
- * 1. Valida que el idPermiso pertenezca al usuario
- * 2. Asigna el permiso actual (usuario.setPermisoActual)
- * 3. Carga áreas de consulta y captura (delegado.obtenAreasConsultas/Captura)
- * 4. Registra en bitácora el cambio de rol
- * 5. Genera nuevo JWT con el rol actualizado
- * 6. Retorna configuración completa de sesión
- */
 export const seleccionarRol = async (req, res) => {
   try {
     const { idPermiso } = req.body;
@@ -131,12 +120,10 @@ export const seleccionarRol = async (req, res) => {
       });
     }
 
-    // ========== FLUJO DE IniciaSesion.java ==========
-
     // 1. Asignar permiso actual (equivalente a delegado.asignaRolPermisos)
     usuarioBean.permisoActual = permisoValido;
     console.log(
-      `[ROLES] Permiso actual asignado: ${permisoValido.descripcion} (${permisoValido.datos.rol})`
+      `Permiso actual asignado: ${permisoValido.descripcion} (${permisoValido.datos.rol})`
     );
 
     // 2. Obtener ID del área seleccionada
@@ -153,7 +140,7 @@ export const seleccionarRol = async (req, res) => {
     // 4. Registrar en bitácora
     // (En el sistema original: BitacoraDAO.grabaBitacora)
     console.log(
-      `[ROLES] Bitácora: ${usuarioBean.datos.nombre} cambió a rol ${permisoValido.datos.rol} en área ${idAreaSel}`
+      `Bitácora: ${usuarioBean.datos.nombre} cambió a rol ${permisoValido.datos.rol} en área ${idAreaSel}`
     );
     // TODO: Implementar registro en tabla de bitácora si existe
 
@@ -187,9 +174,7 @@ export const seleccionarRol = async (req, res) => {
       idAreaSel: idAreaSel,
     };
 
-    console.log(
-      `[ROLES] ✅ Rol seleccionado exitosamente: ${permisoValido.datos.rol}`
-    );
+    console.log(`Rol seleccionado exitosamente: ${permisoValido.datos.rol}`);
 
     // Respuesta con el nuevo token y configuración de sesión
     res.json({
@@ -206,10 +191,10 @@ export const seleccionarRol = async (req, res) => {
         areaActual: permisoValido.descripcion,
         nivel: usuarioBean.datos.superusuario ? 1 : 2,
       },
-      session: sessionData, // Datos completos de sesión para el frontend
+      session: sessionData,
     });
   } catch (error) {
-    console.error("[ROLES] Error seleccionando rol:", error);
+    console.error("Error seleccionando rol:", error);
     res.status(500).json({
       success: false,
       message: "Error al seleccionar el rol",

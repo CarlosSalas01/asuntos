@@ -194,8 +194,8 @@ export const showConfirmation = (
     text,
     icon: "warning",
     showCancelButton: true,
-    confirmButtonColor: "#3B82F6", // blue-500
-    cancelButtonColor: "#EF4444", // red-500
+    confirmButtonColor: "#3B82F6",
+    cancelButtonColor: "#EF4444",
     confirmButtonText: confirmText,
     cancelButtonText: cancelText,
   });

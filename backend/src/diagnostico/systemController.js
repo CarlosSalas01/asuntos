@@ -69,7 +69,7 @@ const testDatabase = async (req, res) => {
           "SELECT COUNT(*) as total_usuarios FROM controlasuntospendientesnew.usuario"
         );
       } catch (schemaError) {
-        console.log("[TEST-DB] ⚠️  Schema no accesible:", schemaError.message);
+        console.log("Schema no accesible:", schemaError.message);
       }
 
       // Test de usuario específico
@@ -80,10 +80,7 @@ const testDatabase = async (req, res) => {
             "SELECT username, nombre, apellido FROM controlasuntospendientesnew.usuario WHERE vigente = 'S' LIMIT 3"
           );
         } catch (userError) {
-          console.log(
-            "[TEST-DB] ⚠️  Error consultando usuarios:",
-            userError.message
-          );
+          console.log("Error consultando usuarios:", userError.message);
         }
       }
 
@@ -114,7 +111,7 @@ const testDatabase = async (req, res) => {
       throw queryError;
     }
   } catch (error) {
-    console.error("[TEST-DB] ❌ Error en prueba de base de datos:", error);
+    console.error("Error en prueba de base de datos:", error);
 
     res.status(500).json({
       success: false,
@@ -156,7 +153,7 @@ const getPoolStats = async (req, res) => {
  */
 const listAvailableUsers = async (req, res) => {
   try {
-    console.log("[LIST-USERS] Consultando usuarios disponibles...");
+    console.log("Consultando usuarios disponibles...");
 
     const sql = `
       SELECT idusuario, username, nombre, apellido, correo1, correo2, 
@@ -168,9 +165,7 @@ const listAvailableUsers = async (req, res) => {
 
     const result = await administradorDataSource.executeQuery(sql);
 
-    console.log(
-      `[LIST-USERS] ✅ Encontrados ${result.rows.length} usuarios vigentes`
-    );
+    console.log(`Encontrados ${result.rows.length} usuarios vigentes`);
 
     // Formatear usuarios para mostrar información útil
     const usersFormatted = result.rows.map((user) => ({
@@ -190,7 +185,7 @@ const listAvailableUsers = async (req, res) => {
       users: usersFormatted,
       instructions: {
         login: "Usa el campo 'username' para hacer login",
-        password: "🔓 MODO DESARROLLO: Puedes usar cualquier contraseña",
+        password: "MODO DESARROLLO: Puedes usar cualquier contraseña",
         note: "Solo se muestran usuarios vigentes (vigente = 'S'). En producción se validarán contraseñas reales.",
         environment: "DESARROLLO - Sin validación de contraseña",
       },

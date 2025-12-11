@@ -70,15 +70,10 @@ export const obtenerDatosBusqueda = async (req, res) => {
       { tipoAsunto: "A", descripcion: "ACUERDOS", cantidad: resultados[4] },
     ];
 
-    console.log(
-      "✅ Resultados obtenidos:",
-      resultadosBusqueda.map((r) => `${r.descripcion}: ${r.cantidad}`)
-    );
-
     // Respuesta en formato compatible con el sistema original
     res.json(resultadosBusqueda);
   } catch (error) {
-    console.error("❌ Error en consulta general:", error);
+    console.error("Error en consulta general:", error);
     res.status(500).json({
       success: false,
       error: "Error interno del servidor",

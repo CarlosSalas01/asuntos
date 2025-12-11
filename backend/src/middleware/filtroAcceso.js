@@ -1,22 +1,16 @@
 /**
- * Middleware de filtro de acceso - Equivalente a FiltroAcceso.java
  * Intercepta todas las peticiones para verificar autenticación
+ * Este archivo funciona como un filtro global
+ * que intercepta todas las peticiones entrantes y verifica si el usuario está autenticado antes de permitir
+ * el acceso a las rutas protegidas.
  */
 
 import administraUsuariosAreas from "../services/administraUsuariosAreas.js";
 
-/**
- * Middleware que verifica si el usuario está autenticado
- * Equivalente al doFilter de FiltroAcceso.java
- */
 const filtroAcceso = async (req, res, next) => {
   try {
     // Rutas que no requieren autenticación
-    const rutasPublicas = [
-      "/api/auth/login",
-      "/api/auth/logout",
-      "/api/health",
-    ];
+    const rutasPublicas = ["/api/auth/login", "/api/auth/logout"];
 
     // Si es una ruta pública, continuar sin verificación
     if (rutasPublicas.includes(req.path)) {
@@ -31,6 +25,7 @@ const filtroAcceso = async (req, res, next) => {
         success: false,
         message: "Token de acceso requerido",
       });
+      console.log("Token de acceso requerido");
     }
 
     // Extraer token del header "Bearer TOKEN"
@@ -105,9 +100,6 @@ const logAcceso = (req, res, next) => {
   next();
 };
 
-/**
- * Middleware para manejo de errores (equivalente a doAfterProcessing)
- */
 const manejoErrores = (error, req, res, next) => {
   const timestamp = new Date().toISOString();
   console.error(`[${timestamp}] Error en ${req.method} ${req.path}:`, error);

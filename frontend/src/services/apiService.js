@@ -80,6 +80,43 @@ export const apiService = {
     }
   },
 
+  /**
+   * Obtiene asuntos por tipo específico
+   * @param {string} tipoAsunto - 'K' (SIA), 'C' (Correos), 'R' (Reuniones), 'A' (Acuerdos), 'M' (Comisiones)
+   * @param {Object} filtros - { search, limit, offset }
+   */
+  obtenerAsuntosPorTipo: async (tipoAsunto, filtros = {}) => {
+    try {
+      const params = new URLSearchParams();
+      if (filtros.search) params.append("search", filtros.search);
+      if (filtros.limit) params.append("limit", filtros.limit);
+      if (filtros.offset) params.append("offset", filtros.offset);
+
+      const queryString = params.toString() ? `?${params.toString()}` : "";
+      const response = await apiClient.get(
+        `/sia/asuntos/tipo/${tipoAsunto}${queryString}`
+      );
+      return response.data;
+    } catch (error) {
+      throw new Error(
+        error.response?.data?.message ||
+          `Error al obtener asuntos tipo ${tipoAsunto}`
+      );
+    }
+  },
+
+  // Métodos de conveniencia para cada tipo de asunto
+  obtenerAsuntosSIA: async (filtros = {}) =>
+    apiService.obtenerAsuntosPorTipo("K", filtros),
+  obtenerCorreos: async (filtros = {}) =>
+    apiService.obtenerAsuntosPorTipo("C", filtros),
+  obtenerReuniones: async (filtros = {}) =>
+    apiService.obtenerAsuntosPorTipo("R", filtros),
+  obtenerAcuerdos: async (filtros = {}) =>
+    apiService.obtenerAsuntosPorTipo("A", filtros),
+  obtenerComisiones: async (filtros = {}) =>
+    apiService.obtenerAsuntosPorTipo("M", filtros),
+
   obtenerAsuntoPorId: async (id) => {
     try {
       const response = await apiClient.get(`/asuntos/${id}`);

@@ -8,26 +8,69 @@ import AsuntoBean from "../models/AsuntoBean.js";
 
 class AsuntoDAO {
   /**
-   * Obtiene asuntos con el query personalizado para la tabla SIA
+   * Obtiene asuntos con el query personalizado para cualquier tipo de asunto
+   * Incluye responsables anidados por cada asunto
+   * @param {Object} filtros - Filtros opcionales: { search, limit, offset, tipoAsunto }
+   * @param {string} tipoAsunto - Tipo de asunto: 'K' (SIA), 'C' (Correos), 'R' (Reuniones), 'A' (Acuerdos), 'M' (Comisiones)
    */
-  async obtenerAsuntosTablaSIA() {
-    const sql = `
-        SELECT a.idasunto, a.fechaingreso, a.idconsecutivo, conteo.rowspan, c.siglas, b.estatus, b.delegado, a.descripcion
-        FROM controlasuntospendientesnew.asunto as a
-        INNER JOIN controlasuntospendientesnew.responsable b ON a.idasunto = b.idasunto
-        INNER JOIN controlasuntospendientesnew.area c ON b.idarea = c.idarea
-        INNER JOIN (
-          SELECT idasunto, COUNT(b2.*) AS rowspan
-          FROM controlasuntospendientesnew.responsable b2
-          INNER JOIN controlasuntospendientesnew.area c2 ON b2.idarea = c2.idarea AND c2.nivel=2
-          GROUP BY idasunto
-        ) AS conteo ON a.idasunto = conteo.idasunto
-        WHERE a.tipoasunto = 'C'
-        ORDER BY a.idconsecutivo DESC
-        LIMIT 10
+  async obtenerAsuntosPorTipo(filtros = {}, tipoAsunto = "K") {
+    const { search = "", limit = 50, offset = 0 } = filtros;
+
+    // Validar tipo de asunto
+    const tiposValidos = ["K", "C", "R", "A", "M"];
+    const tipo = tiposValidos.includes(tipoAsunto) ? tipoAsunto : "K";
+
+    // 1. Construir query dinámico para asuntos
+    const params = [tipo];
+    const whereParts = [`a.tipoasunto = $1`];
+
+    if (search.trim()) {
+      params.push(`%${search.trim()}%`);
+      whereParts.push(`a.descripcion ILIKE $${params.length}`);
+    }
+
+    const whereClause = `WHERE ${whereParts.join(" AND ")}`;
+
+    params.push(limit);
+    params.push(offset);
+
+    const sqlAsuntos = `
+      SELECT *
+      FROM controlasuntospendientesnew.asunto a
+      ${whereClause}
+      ORDER BY a.idconsecutivo DESC
+      LIMIT $${params.length - 1} OFFSET $${params.length}
+    `;
+
+    const resultAsuntos = await administradorDataSource.executeQuery(
+      sqlAsuntos,
+      params
+    );
+    const asuntos = resultAsuntos.rows;
+
+    // 2. Para cada asunto, obtener sus responsables (nivel 2)
+    for (let asunto of asuntos) {
+      const sqlResponsables = `
+        SELECT 
+          r.idresponsable,
+          r.idarea, 
+          a.siglas, 
+          r.estatus, 
+          r.avance, 
+          r.fechaatencion,
+          r.delegado
+        FROM controlasuntospendientesnew.responsable r 
+        INNER JOIN controlasuntospendientesnew.area a ON r.idarea = a.idarea AND a.nivel = 2
+        WHERE r.idasunto = $1
       `;
-    const result = await administradorDataSource.executeQuery(sql);
-    return result.rows;
+      const resultResp = await administradorDataSource.executeQuery(
+        sqlResponsables,
+        [asunto.idasunto]
+      );
+      asunto.responsables = resultResp.rows;
+    }
+
+    return asuntos;
   }
   constructor(areas = null) {
     this.areas = areas;

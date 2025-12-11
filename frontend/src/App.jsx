@@ -65,18 +65,18 @@ function AppContent() {
   const handleLogin = (username, role, userData) => {
     setIsAuthenticated(true);
     setUser(userData);
-
-    // Redirigir según la cantidad de permisos del usuario
-    // Si tiene múltiples permisos, ir a /roles para que seleccione
-    // Si solo tiene un permiso, ir directo al dashboard
-    // Esta lógica se maneja en Login.jsx con navigate
   };
 
+  //Sirve para cerrar sesión
   const handleLogout = () => {
+    // Eliminar token y datos del usuario del almacenamiento local
     localStorage.removeItem("authToken");
+    // Eliminar datos del usuario y rol
     localStorage.removeItem("userData");
     localStorage.removeItem("userRole");
+    // Actualizar estado de autenticación a false
     setIsAuthenticated(false);
+    // Limpiar datos del usuario en el estado
     setUser(null);
   };
 
@@ -89,6 +89,12 @@ function AppContent() {
   }
 
   const isSIA = location.pathname === "/sia";
+  const isCORREOS = location.pathname === "/correos";
+  const isREUINIONES = location.pathname === "/reuniones";
+  const isACUERDOS = location.pathname === "/acuerdos";
+  const isCOMISIONES = location.pathname === "/comisiones";
+  const isCONVENIOS = location.pathname === "/convenios";
+  const isCONSULTA = location.pathname === "/consulta-general";
 
   return (
     <div className="App min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-900 dark:to-slate-800 transition-colors duration-300">
@@ -104,17 +110,46 @@ function AppContent() {
           ) : (
             <Header user={user} onLogout={handleLogout} />
           )}
-          <main className={`main-content${isSIA ? " sia-full-width" : ""}`}>
+          <main
+            className={
+              `main-content
+               ${isSIA ? " sia-full-width" : ""}` +
+              `${isCORREOS ? " correos-full-width" : ""}` +
+              `${isREUINIONES ? " reuniones-full-width" : ""}` +
+              `${isACUERDOS ? " acuerdos-full-width" : ""}` +
+              `${isCOMISIONES ? " comisiones-full-width" : ""}` +
+              `${isCONVENIOS ? " convenios-full-width" : ""}` +
+              `${isCONSULTA ? " consulta-full-width" : ""}`
+            }
+          >
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/login" element={<Navigate to="/" replace />} />
               <Route path="/sia" element={<SIA className="sia-full-width" />} />
-              <Route path="/reuniones" element={<Reuniones />} />
-              <Route path="/correos" element={<Correos />} />
-              <Route path="/comisiones" element={<Comisiones />} />
-              <Route path="/convenios" element={<Convenios />} />
-              <Route path="/acuerdos" element={<Acuerdos />} />
-              <Route path="/consulta-general" element={<ConsultaGral />} />
+              <Route
+                path="/correos"
+                element={<Correos className="correos-full-width" />}
+              />
+              <Route
+                path="/reuniones"
+                element={<Reuniones className="reuniones-full-width" />}
+              />
+              <Route
+                path="/acuerdos"
+                element={<Acuerdos className="acuerdos-full-width" />}
+              />
+              <Route
+                path="/comisiones"
+                element={<Comisiones className="comisiones-full-width" />}
+              />
+              <Route
+                path="/convenios"
+                element={<Convenios className="convenios-full-width" />}
+              />
+              <Route
+                path="/consulta-general"
+                element={<ConsultaGral className="consulta-full-width" />}
+              />
 
               {/* Nueva consulta general con TablaResultados */}
               <Route
@@ -134,7 +169,6 @@ function AppContent() {
                 element={<ConsultaReuniones />}
               />
               <Route path="/consulta-acuerdos" element={<ConsultaAcuerdos />} />
-
               <Route path="/reportes" element={<Reportes />} />
               <Route path="/asuntos" element={<Asuntos />} />
               <Route path="/asuntos-sia" element={<AsuntosSIA />} />

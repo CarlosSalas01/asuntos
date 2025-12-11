@@ -120,28 +120,6 @@ class AdministraUsuariosAreas {
     return await bcrypt.hash(password, saltRounds);
   }
 
-  /**
-   * Convierte UsuarioDTO a UsuarioBean (equivalente al mapeo en Java)
-   * Solo incluye propiedades necesarias para el sistema
-   *
-   * Estructura del usuarioBean:
-   * {
-   *   datos: {
-   *     idusuario: number,
-   *     username: string,
-   *     nombreCompleto: string,
-   *     superusuario: boolean
-   *   },
-   *   permisos: Array,
-   *   permisoActual: {
-   *     idarea: number,
-   *     rol: string,
-   *     descripcion: string
-   *   }
-   * }
-   *
-   * @param {Object} usuarioDTO - DTO del usuario
-   */
   convertirDTOaBean(usuarioDTO) {
     return {
       datos: {
