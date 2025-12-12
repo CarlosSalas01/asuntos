@@ -1,19 +1,12 @@
-/**
- * AsuntoDAO - Equivalente a AsuntoDAO.java
- * Maneja las consultas relacionadas con asuntos
- */
-
 import administradorDataSource from "../config/administradorDataSource.js";
 import AsuntoBean from "../models/AsuntoBean.js";
 
 class AsuntoDAO {
   /**
-   * Obtiene asuntos con el query personalizado para cualquier tipo de asunto
-   * Incluye responsables anidados por cada asunto
    * @param {Object} filtros - Filtros opcionales: { search, limit, offset, tipoAsunto }
    * @param {string} tipoAsunto - Tipo de asunto: 'K' (SIA), 'C' (Correos), 'R' (Reuniones), 'A' (Acuerdos), 'M' (Comisiones)
    */
-  async obtenerAsuntosPorTipo(filtros = {}, tipoAsunto = "K") {
+  async obtenerAsuntosPorTipo(filtros = {}, tipoAsunto) {
     const { search = "", limit = 50, offset = 0 } = filtros;
 
     // Validar tipo de asunto
@@ -76,10 +69,6 @@ class AsuntoDAO {
     this.areas = areas;
   }
 
-  /**
-   * Obtiene la cantidad de asuntos por área y tipo
-   * Equivalente a cantidadAsuntosxAreaxTipo() del Java original
-   */
   async cantidadAsuntosxAreaxTipo(filtro, tipo) {
     try {
       const query = `
@@ -145,7 +134,7 @@ class AsuntoDAO {
           params.push(area.idarea);
         }
       });
-      sql = sql.slice(0, -4) + `))`; // Elimina el último ' OR '
+      sql = sql.slice(0, -4) + `))`;
     }
 
     // Filtros de fecha
@@ -190,10 +179,6 @@ class AsuntoDAO {
     return asuntos;
   }
 
-  /**
-   * Obtiene la cantidad de asuntos vencidos directos
-   * Equivalente a cantidadAsuntosVencidosDirectos() del Java original
-   */
   async cantidadAsuntosVencidosDirectos(tipo, idarea, filtro) {
     try {
       const query = `
@@ -223,10 +208,6 @@ class AsuntoDAO {
     }
   }
 
-  /**
-   * Obtiene la cantidad de asuntos por vencer directos
-   * Equivalente a cantidadAsuntosPorVencerDirectos() del Java original
-   */
   async cantidadAsuntosPorVencerDirectos(tipo, idarea, filtro) {
     try {
       const query = `

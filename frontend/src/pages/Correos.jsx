@@ -107,6 +107,15 @@ const Correos = ({ className = "" }) => {
     }
   };
 
+  // Formatear fecha de YYYYMMDD a DD/MM/YYYY
+  const formatearFecha = (fecha) => {
+    if (!fecha || fecha.length !== 8) return fecha || "";
+    const anio = fecha.substring(0, 4);
+    const mes = fecha.substring(4, 6);
+    const dia = fecha.substring(6, 8);
+    return `${dia}/${mes}/${anio}`;
+  };
+
   if (loading) return <div>Cargando...</div>;
 
   return (
@@ -218,6 +227,12 @@ const Correos = ({ className = "" }) => {
               <th className="px-3 py-2 text-base text-center font-semibold text-white border border-gray-600 dark:border-gray-700 w-24">
                 Fecha de atención
               </th>
+              <th className="px-3 py-2 text-base text-center font-semibold text-white border border-gray-600 dark:border-gray-700 w-24">
+                Días de proceso
+              </th>
+              <th className="px-3 py-2 text-base text-center font-semibold text-white border border-gray-600 dark:border-gray-700 w-24">
+                Días de retraso
+              </th>
               <th className="px-3 py-2 text-base text-center font-semibold text-white border border-gray-600 dark:border-gray-700 w-32">
                 Observaciones
               </th>
@@ -270,7 +285,7 @@ const Correos = ({ className = "" }) => {
                       rowSpan={numResp}
                       className="text-center dark:bg-slate-700 bg-gray-200 border border-gray-300 dark:border-gray-800 px-1"
                     >
-                      {correo.fechaingreso}
+                      {formatearFecha(correo.fechaingreso)}
                     </td>
                     <td
                       rowSpan={numResp}
@@ -278,7 +293,7 @@ const Correos = ({ className = "" }) => {
                     >
                       {correo.urgente}
                       <br />
-                      {correo.fechaatender}
+                      {formatearFecha(correo.fechaatender)}
                     </td>
                     {/* Columnas del primer responsable (sin rowSpan) */}
                     <td className="text-center dark:bg-slate-700 bg-gray-200 border border-gray-300 dark:border-gray-800 px-1">
@@ -294,6 +309,18 @@ const Correos = ({ className = "" }) => {
                     </td>
                     <td className="text-center dark:bg-slate-700 bg-gray-200 border border-gray-300 dark:border-gray-800 px-1">
                       {responsables[0]?.fechaatencion ?? ""}
+                    </td>
+                    <td
+                      rowSpan={numResp}
+                      className="text-center dark:bg-slate-700 bg-gray-200 border border-gray-300 dark:border-gray-800 p-2"
+                    >
+                      {correo.observaciones}
+                    </td>
+                    <td
+                      rowSpan={numResp}
+                      className="text-center dark:bg-slate-700 bg-gray-200 border border-gray-300 dark:border-gray-800 p-2"
+                    >
+                      {correo.observaciones}
                     </td>
                     <td
                       rowSpan={numResp}

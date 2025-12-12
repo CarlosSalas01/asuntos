@@ -184,7 +184,7 @@ const CorreosCaptura = () => {
             </select>
             <button
               type="button"
-              className="px-3 py-1 bg-blue-800 hover:bg-blue-700 text-white text-sm rounded focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              className="px-3 py-2 bg-gradient-to-br from-blue-900 to-teal-900 text-white text-sm rounded focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
             >
               Agregar destinatario
             </button>
@@ -294,14 +294,14 @@ const CorreosCaptura = () => {
         <div className="flex gap-4 pt-6 justify-end">
           <button
             type="submit"
-            className="px-3 py-1 bg-blue-800 hover:bg-blue-700 text-white font-medium rounded focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+            className="px-3 py-2 bg-gradient-to-br from-blue-900 to-teal-900 text-white font-medium rounded focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
           >
             Enviar datos
           </button>
           <button
             type="button"
             onClick={handleClear}
-            className="px-3 py-1 bg-blue-800 hover:bg-blue-700 text-white font-medium rounded focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+            className="px-3 py-2 bg-gradient-to-br from-blue-900 to-teal-900 text-white font-medium rounded focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
           >
             Limpiar datos
           </button>

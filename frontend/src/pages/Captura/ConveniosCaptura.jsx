@@ -221,7 +221,7 @@ const ConveniosCaptura = () => {
             </select>
             <button
               type="button"
-              className="px-3 py-1 bg-blue-800 hover:bg-blue-700 text-white text-sm rounded focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 whitespace-nowrap"
+              className="px-3 py-2 bg-gradient-to-br from-blue-900 to-teal-900 text-white hover:from-teal-800 hover:to-blue-900 text-sm rounded focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 whitespace-nowrap"
             >
               Agrega responsable
             </button>
@@ -267,7 +267,7 @@ const ConveniosCaptura = () => {
             </select>
             <button
               type="button"
-              className="px-3 py-1 bg-blue-800 hover:bg-blue-700 text-white text-sm rounded focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 whitespace-nowrap"
+              className="px-3 py-2 bg-gradient-to-br from-blue-900 to-teal-900 text-white hover:from-teal-800 hover:to-blue-900 text-sm rounded focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 whitespace-nowrap"
             >
               Agrega área
             </button>
@@ -338,11 +338,11 @@ const ConveniosCaptura = () => {
               />
               <label
                 htmlFor="convenio-file-upload"
-                className="px-4 py-1 bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500 border border-gray-300 dark:border-gray-600 rounded-l text-sm cursor-pointer focus:ring-2 focus:ring-blue-500 dark:text-gray-100"
+                className="px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500 border border-gray-300 dark:border-gray-600 rounded-l text-sm cursor-pointer focus:ring-2 focus:ring-blue-500 dark:text-gray-100"
               >
                 Elegir archivo
               </label>
-              <span className="flex-1 px-3 py-1 border-t border-b border-r border-gray-300 dark:border-gray-600 rounded-r bg-white dark:bg-gray-700 text-sm text-gray-500 dark:text-gray-400">
+              <span className="flex-1 px-3 py-2 border-t border-b border-r border-gray-300 dark:border-gray-600 rounded-r bg-white dark:bg-gray-700 text-sm text-gray-500 dark:text-gray-400">
                 {formData.anexo1
                   ? formData.anexo1.name
                   : "No se ha seleccionado ningún archivo"}
@@ -360,21 +360,21 @@ const ConveniosCaptura = () => {
         <div className="flex gap-4 pt-6 justify-end">
           <button
             type="submit"
-            className="px-3 py-1 bg-blue-800 hover:bg-blue-700 text-white font-medium rounded focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+            className="px-3 py-2 bg-gradient-to-br from-blue-900 to-teal-900 text-white hover:from-teal-800 hover:to-blue-900 font-medium rounded focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
           >
             Guardar
           </button>
           <button
             type="button"
             onClick={handleClear}
-            className="px-3 py-1 bg-blue-800 hover:bg-blue-700 text-white font-medium rounded focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+            className="px-3 py-2 bg-gradient-to-br from-blue-900 to-teal-900 text-white font-medium rounded focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
           >
             Limpiar datos
           </button>
           <button
             type="button"
             onClick={handleExitWithoutSaving}
-            className="px-3 py-1 bg-blue-800 hover:bg-blue-700 text-white font-medium rounded focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+            className="px-3 py-2 bg-gradient-to-br from-blue-900 to-teal-900 text-white font-medium rounded focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
           >
             Salir sin guardar
           </button>

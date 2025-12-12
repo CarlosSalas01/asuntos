@@ -91,6 +91,15 @@ const Comisiones = ({ className = "" }) => {
     }
   };
 
+  // Formatear fecha de YYYYMMDD a DD/MM/YYYY
+  const formatearFecha = (fecha) => {
+    if (!fecha || fecha.length !== 8) return fecha || "";
+    const anio = fecha.substring(0, 4);
+    const mes = fecha.substring(4, 6);
+    const dia = fecha.substring(6, 8);
+    return `${dia}/${mes}/${anio}`;
+  };
+
   if (loading) return <div>Cargando...</div>;
 
   return (
@@ -168,8 +177,8 @@ const Comisiones = ({ className = "" }) => {
         indiceFin={indiceFin}
       />
 
-      <div className="rounded-sm shadow-sm overflow-hidden">
-        <table className="w-full border border-gray-300 table-fixed">
+      <div className="rounded-sm shadow-sm overflow-x-auto">
+        <table className="w-full border border-gray-300 table-fixed min-w-[1200px]">
           <thead className="bg-gradient-to-br from-blue-950 to-teal-950 text-white py-4 shadow-md rounded-md">
             <tr>
               <th className="px-3 py-2 text-base text-center font-semibold text-white border border-gray-600 dark:border-gray-700 w-24">
@@ -184,7 +193,7 @@ const Comisiones = ({ className = "" }) => {
               <th className="px-3 py-2 text-base text-center font-semibold text-white border border-gray-600 dark:border-gray-700 w-28">
                 Objetivo
               </th>
-              <th className="px-3 py-2 text-base text-center font-semibold text-white border border-gray-600 dark:border-gray-700 w-24">
+              <th className="px-3 py-2 text-base text-center font-semibold text-white border border-gray-600 dark:border-gray-700 w-60">
                 Lugar
               </th>
               <th className="px-3 py-2 text-base text-center font-semibold text-white border border-gray-600 dark:border-gray-700 w-28">
@@ -230,6 +239,7 @@ const Comisiones = ({ className = "" }) => {
               return (
                 <React.Fragment key={comision.idasunto}>
                   <tr>
+                    {/* 1. Asunto */}
                     <td
                       rowSpan={numResp}
                       className="text-center dark:bg-slate-700 bg-gray-200 border border-gray-300 dark:border-gray-800 px-1"
@@ -240,109 +250,126 @@ const Comisiones = ({ className = "" }) => {
                         {getEstatusLabel(comision.estatus)}
                       </span>
                     </td>
-                    <td
-                      rowSpan={numResp}
-                      className="text-center dark:bg-slate-700 bg-gray-200 border border-gray-300 dark:border-gray-800 px-1"
-                    >
-                      {comision.presidencia}
-                      <br />
-                      {comision.nocontrol}
-                      <br />
-                      {comision.estatuscorto}
-                      <br />
-                      {comision.fuente}
-                    </td>
+                    {/* 2. Comisión */}
                     <td
                       rowSpan={numResp}
                       className="text-center dark:bg-slate-700 bg-gray-200 border border-gray-300 dark:border-gray-800 p-2"
                     >
                       {comision.descripcion}
                     </td>
+                    {/* 3. Comisionados */}
                     <td
                       rowSpan={numResp}
                       className="text-center dark:bg-slate-700 bg-gray-200 border border-gray-300 dark:border-gray-800 px-1"
                     >
-                      {comision.fechaingreso}
+                      {comision.asistentes || "-"}
                     </td>
+                    {/* 4. Objetivo */}
+                    <td
+                      rowSpan={numResp}
+                      className="text-center dark:bg-slate-700 bg-gray-200 border border-gray-300 dark:border-gray-800 p-2"
+                    >
+                      {comision.estatustexto || "-"}
+                    </td>
+                    {/* 5. Lugar */}
                     <td
                       rowSpan={numResp}
                       className="text-center dark:bg-slate-700 bg-gray-200 border border-gray-300 dark:border-gray-800 px-1"
                     >
-                      {comision.urgente}
-                      <br />
-                      {comision.fechaatender}
+                      {comision.lugar || "-"}
                     </td>
+                    {/* 6. Inicio */}
+                    <td
+                      rowSpan={numResp}
+                      className="text-center dark:bg-slate-700 bg-gray-200 border border-gray-300 dark:border-gray-800 px-1"
+                    >
+                      {formatearFecha(comision.fechaingreso)}
+                    </td>
+                    {/* 7. Fin */}
+                    <td
+                      rowSpan={numResp}
+                      className="text-center dark:bg-slate-700 bg-gray-200 border border-gray-300 dark:border-gray-800 px-1"
+                    >
+                      {formatearFecha(comision.fechaatender)}
+                    </td>
+                    {/* 8. Fecha vencimiento */}
+                    <td
+                      rowSpan={numResp}
+                      className="text-center dark:bg-slate-700 bg-gray-200 border border-gray-300 dark:border-gray-800 px-1"
+                    >
+                      {formatearFecha(comision.fechaatender)}
+                    </td>
+                    {/* 9. Anexos */}
+                    <td
+                      rowSpan={numResp}
+                      className="text-center dark:bg-slate-700 bg-gray-200 border border-gray-300 dark:border-gray-800 px-1"
+                    >
+                      {comision.anexos || "-"}
+                    </td>
+                    {/* 10. Observaciones */}
+                    <td
+                      rowSpan={numResp}
+                      className="text-center dark:bg-slate-700 bg-gray-200 border border-gray-300 dark:border-gray-800 p-2"
+                    >
+                      {comision.observaciones || "-"}
+                    </td>
+                    {/* 11. Responsable */}
                     <td className="text-center dark:bg-slate-700 bg-gray-200 border border-gray-300 dark:border-gray-800 px-1">
-                      {responsables[0]?.siglas || ""}
+                      {responsables[0]?.siglas || "-"}
                     </td>
+                    {/* 12. Estatus responsable */}
                     <td className="text-center dark:bg-slate-700 bg-gray-200 border border-gray-300 dark:border-gray-800 px-1">
                       {getEstatusLabel(responsables[0]?.estatus)}
                     </td>
+                    {/* 13. Avance */}
                     <td className="text-center dark:bg-slate-700 bg-gray-200 border border-gray-300 dark:border-gray-800 px-1">
                       {responsables[0]?.avance
                         ? `${responsables[0].avance}%`
-                        : ""}
+                        : "-"}
                     </td>
+                    {/* 14. Fecha de atención */}
                     <td className="text-center dark:bg-slate-700 bg-gray-200 border border-gray-300 dark:border-gray-800 px-1">
-                      {responsables[0]?.fechaatencion ?? ""}
+                      {responsables[0]?.fechaatencion
+                        ? formatearFecha(responsables[0].fechaatencion)
+                        : "-"}
                     </td>
-                    <td
-                      rowSpan={numResp}
-                      className="text-center dark:bg-slate-700 bg-gray-200 border border-gray-300 dark:border-gray-800 p-2"
-                    >
-                      {comision.observaciones}
+                    {/* 15. Días de atención */}
+                    <td className="text-center dark:bg-slate-700 bg-gray-200 border border-gray-300 dark:border-gray-800 px-1">
+                      {responsables[0]?.diasatencion ?? "-"}
                     </td>
-                    <td
-                      rowSpan={numResp}
-                      className="text-center dark:bg-slate-700 bg-gray-200 border border-gray-300 dark:border-gray-800 p-2"
-                    >
-                      {comision.observaciones}
-                    </td>
-                    <td
-                      rowSpan={numResp}
-                      className="text-center dark:bg-slate-700 bg-gray-200 border border-gray-300 dark:border-gray-800 p-2"
-                    >
-                      {comision.observaciones}
-                    </td>
-                    <td
-                      rowSpan={numResp}
-                      className="text-center dark:bg-slate-700 bg-gray-200 border border-gray-300 dark:border-gray-800 p-2"
-                    >
-                      {comision.observaciones}
-                    </td>
-                    <td
-                      rowSpan={numResp}
-                      className="text-center dark:bg-slate-700 bg-gray-200 border border-gray-300 dark:border-gray-800 p-2"
-                    >
-                      {comision.observaciones}
-                    </td>
-                    <td
-                      rowSpan={numResp}
-                      className="text-center dark:bg-slate-700 bg-gray-200 border border-gray-300 dark:border-gray-800 p-2"
-                    >
-                      {comision.observaciones}
-                    </td>
-                    <td
-                      rowSpan={numResp}
-                      className="text-center dark:bg-slate-700 bg-gray-200 border border-gray-300 dark:border-gray-800 p-2"
-                    >
-                      {comision.observaciones}
+                    {/* 16. Días de retraso */}
+                    <td className="text-center dark:bg-slate-700 bg-gray-200 border border-gray-300 dark:border-gray-800 px-1">
+                      {responsables[0]?.diasretraso ?? "-"}
                     </td>
                   </tr>
 
                   {responsables.slice(1).map((resp, idx) => (
                     <tr key={`${comision.idasunto}-resp-${idx}`}>
+                      {/* 11. Responsable */}
                       <td className="text-center dark:bg-slate-700 bg-gray-200 border border-gray-300 dark:border-gray-800 px-1">
-                        {resp.siglas}
+                        {resp.siglas || "-"}
                       </td>
+                      {/* 12. Estatus responsable */}
                       <td className="text-center dark:bg-slate-700 bg-gray-200 border border-gray-300 dark:border-gray-800 px-1">
                         {getEstatusLabel(resp.estatus)}
                       </td>
+                      {/* 13. Avance */}
                       <td className="text-center dark:bg-slate-700 bg-gray-200 border border-gray-300 dark:border-gray-800 px-1">
-                        {resp.avance ?? ""}
+                        {resp.avance ? `${resp.avance}%` : "-"}
                       </td>
+                      {/* 14. Fecha de atención */}
                       <td className="text-center dark:bg-slate-700 bg-gray-200 border border-gray-300 dark:border-gray-800 px-1">
-                        {resp.fechaatencion ?? ""}
+                        {resp.fechaatencion
+                          ? formatearFecha(resp.fechaatencion)
+                          : "-"}
+                      </td>
+                      {/* 15. Días de atención */}
+                      <td className="text-center dark:bg-slate-700 bg-gray-200 border border-gray-300 dark:border-gray-800 px-1">
+                        {resp.diasatencion ?? "-"}
+                      </td>
+                      {/* 16. Días de retraso */}
+                      <td className="text-center dark:bg-slate-700 bg-gray-200 border border-gray-300 dark:border-gray-800 px-1">
+                        {resp.diasretraso ?? "-"}
                       </td>
                     </tr>
                   ))}

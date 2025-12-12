@@ -1,17 +1,8 @@
-/**
- * AreaDAO - Equivalente a AreaDAO.java
- * Maneja las consultas relacionadas con áreas
- */
-
 import administradorDataSource from "../config/administradorDataSource.js";
 
 class AreaDAO {
   constructor() {}
 
-  /**
-   * Obtiene un área por su ID
-   * Equivalente a getArea() del Java original
-   */
   async getArea(idarea) {
     try {
       const query = `
